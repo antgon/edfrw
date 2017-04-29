@@ -18,4 +18,4 @@ Links
 
 .. _`GNU General Public License`: http://www.gnu.org/licenses/gpl.html
 .. _`source code`: https://github.com/antgon/edfrw
-.. _`documentation`: http://foo.com
+.. _`documentation`: https://edfrw.readthedocs.io

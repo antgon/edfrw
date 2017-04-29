@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 # coding=utf-8
-
 '''
 Copyright 2017 Antonio González
 
@@ -26,11 +25,6 @@ from datetime import datetime
 import numpy as np
 
 from .headers import (RecordingId, SubjectId, seconds_to_str)
-
-def printhdr(hdr):
-    for key in sorted(hdr.__dict__.keys()):
-        val = hdr.__dict__[key]
-        print('{:25} {}'.format(key, val))
 
 class HeaderReader:
     def __init__(self, f):
@@ -146,14 +140,12 @@ class EdfReader(object):
         self._f.close()
 
 if __name__ == "__main__":
-    #edf = EdfReader('data/SC4181E0-PSG.edf')
-    edf = EdfReader('bit_20170406_007.edf')
-
     import pandas as pd
 
-    # This read all the data (which is a lot). Not very efficient.
+    edf = EdfReader('data/SC4181E0-PSG.edf')
     signals = [pd.Series(), pd.Series(), pd.Series()]
 
+    # This read all the data (which is a lot). Not very efficient.
     for nrec in range(edf.header.number_of_data_records):
         for nsig in range(edf.header.number_of_signals):
             nr = edf.header.number_of_samples[nsig]

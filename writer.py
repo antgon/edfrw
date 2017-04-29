@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 # coding=utf-8
-
 '''
 Copyright 2017 Antonio González
 
@@ -20,15 +19,11 @@ You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
 '''
 
-
 from .headers import Header
 
 class EdfWriter(object):
     def __init__(self, fname, subject_id, recording_id, signals,
                  saving_period_s=5, date_time=None):
-        self.fname = fname
-        self._f = open(fname, 'wb')
-
         '''
         saving_period_s <int>   How often (in seconds) will the data be
                                 saved to disk? This value sets EDF
@@ -37,12 +32,15 @@ class EdfWriter(object):
                                 data record.
 
         From the specification:
-        The duration of each data record is recommended to be a whole
-        number of seconds and its size (number of bytes) is recommended
-        not to exceed 61440. Only if a 1s data record exceeds this size
-        limit, the duration is recommended to be smaller than 1s (e.g.
-        0.01).
+
+            The duration of each data record is recommended to be a
+            whole number of seconds and its size (number of bytes) is
+            recommended not to exceed 61440. Only if a 1s data record
+            exceeds this size limit, the duration is recommended to be
+            smaller than 1s (e.g. 0.01).
         '''
+        self.fname = fname
+        self._f = open(fname, 'wb')
         duration_of_data_record = int(saving_period_s)
 
         self.header = Header(

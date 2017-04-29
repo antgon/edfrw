@@ -54,11 +54,7 @@ so to avoid issues:
 
 '''
 
-#def open_edf(fname, mode='r'):
-#    if mode == 'r':
-#        return(EdfReader(fname))
-#    elif mode == 'w':
-#        return(EdfWriter(fname))
+
 
 
 def printhdr(hdr):

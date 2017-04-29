@@ -2,18 +2,22 @@
 EDF specifications primer
 =========================
 
-From `EDF's website`_:
+From the `EDF's website`_:
+
     The European Data Format (EDF) is a simple and flexible format for
     exchange and storage of multichannel biological and physical signals.
 
-.. _EDF's website: http://www.edfplus.info
+.. _`EDF's website`: http://www.edfplus.info
 
 EDF files consist of a header (ascii) that describes the contents of the
 file and the experimental settings. The data (int16) are stored after
-the header. The main aspects of the specification are described here,
-which is useful reading for following the logic behind classes and
-functions that make up the edfrw library. For more about the format and
-full specifications see http://www.edfplus.info/specs/index.html.
+the header. The main aspects of the specification are described in this
+section, which is useful reading for understanding the classes and
+functions that make up the `edfrw library`_. For more about the European
+Data Format and full specifications see
+http://www.edfplus.info/specs/index.html.
+
+.. _`edfrw library`: https://github.com/antgon/edfrw
 
 
 The Header
@@ -173,38 +177,42 @@ Converting digital samples to physical dimensions
 Data samples are stored as 16-bit (2-byte signed, little endian, two's
 complement) integers. An easy way to convert those values to their
 physical equivalent is by using the line equation with the information
-stored in the signal header.
+stored in the `Signal record`_.
 
-The general equation of a straight line states that the slope (or gain)
-*m* of a line is the ratio of change in *y* by change in *x*, that is::
+The slope *m* (or gain) of a straight line is the ratio of change in *y*
+by change in *x*::
 
     m = (y1 - y0) / (x1 - x0)
 
-and if the slope *m* and the intercept *b* are known, then the
-relationship  between *x* and *y* in a line can be described by::
+and if the slope *m* and the intercept *b* are known, then the line can
+be described by::
 
     y = m * x + b
 
-In our case it can be seen that the raw int16 data stored in an EDF file
-are the input *x* in that equation, and the physical values that we are
-looking for are the output *y*. The offset or intercept *b* will be the
-physical_min value stored in the signal header. Thus, the slope can be
-calculated as::
+It can be seen that the raw int16 data values stored in an EDF file
+correspond to *x* in that equation, that the physical values that we are
+looking for are *y*, and that these two are related by the parameters
+set in the `Signal record`_.
+
+The slope can be calculated as::
 
     m = (y1 - y0) / (x1 - x0)
     m = (physical_max - physical_min) / (digital_max - digital_min)
 
-from which the physical values can be obtained::
+and the offset (or intercept) *b* will be the physical_min value. From
+these the physical values can be obtained using  the line equation::
 
     b = offset = physical_min
     y = m * x + b
     physical_value = (m * digital_value) + b
 
 Example 1.
-    Measure a voltage with the mbed adc. This is a 12-bit adc, so its
-    digital range is from 0 to 4095. The reference voltage in the mbed
-    is 3.3 V, so the physical range that the adc can measure is from 0
-    to 3.3 V. Thus, the signal header should be::
+    An EDF file contains data obtained after measuring voltage with the
+    adc from the mbed LPC1768. The native EDF data are stored as 2-byte
+    integer digital samples. The mbed has an 12-bit adc, so its digital
+    range is from 0 to 4095, and the reference voltage in the mbed is
+    3.3 V, so the physical range that the adc can measure is 0 V to 3.3
+    V. Thus, the header record in such EDF file would be::
 
         physical_dim = 'V'
         physical_min = 0
@@ -212,15 +220,14 @@ Example 1.
         digital_min = 0
         digital_max = 4095
 
-    So to convert digital values to volts, calculate the gain *m*
-    (slope)::
+    These parameters are used to calculate the gain *m* (slope)::
 
         m = (y1 - y0) / (x1 - x0)
         m = (physical_max - physical_min) / (digital_max - digital_min)
         m = (3.3 - 0) / (4095 - 0)
         m = 0.0008
 
-    and with that the physical values::
+    and with that the physical values (voltage)::
 
         physical_value = (m * digital_value) + physical_min
         physical_value = (0.0008 * digital_value) + 0
@@ -229,10 +236,10 @@ Example 1.
     volts, as expected.
 
 Example 2.
-    Acquire EEG data using a commercial system. The manufacturer
-    explains in the documentation that the analog outputs
-    from their hardware are signals that range between 0 and 5 volts,
-    and are centred at 2.048 V, so::
+    EEG data are acquired using a commercial system. The manufacturer
+    explains in the documentation that the analog outputs from their
+    hardware are signals that range between 0 and 5 volts, and are
+    centred at 2.048 V, so::
 
         physical_dim = 'V'
         physical_min = 0 - 2.048 = -2.048
