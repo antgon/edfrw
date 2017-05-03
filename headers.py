@@ -87,12 +87,22 @@ class EdfHeaderException(Exception):
 class SubjectId:
     _len = 80
 
-    def __init__(self, code='X', sex='X', dob='X', name='X'):
+    def __init__(self, code='', sex='', dob='', name=''):
         '''
-        dob is expected to be:
+        Properties that identify the subject.
+
+        `code` is the patient code
+        `sex` is 'M', 'F', or 'X'
+        `dob` is date of birth
+        `name` is the patient's name
+
+        If any field is not known it can be entered as 'X' (as per
+        EDF standard) or as an empty string ''.
+
+        `dob` is expected to be:
             (a) a string in iso format 'yyyy-mm-dd', or
             (b) a datetime instance, or
-            (c) 'X' if dob is unknown.
+            (c) '' or 'X' if dob is unknown.
         '''
         self.code = code
         self.sex = sex
@@ -105,6 +115,8 @@ class SubjectId:
 
     @code.setter
     def code(self, code):
+        if not code:
+            code = 'X'
         self._code = remove_space(code)
 
     @property
@@ -113,6 +125,8 @@ class SubjectId:
 
     @sex.setter
     def sex(self, sex):
+        if not sex:
+            sex = 'X'
         if sex not in ('M', 'F', 'X'):
             error = ("'sex' can only be 'M' (male), 'F' (female), or" +
                      " 'X' (unknown)")
@@ -126,14 +140,15 @@ class SubjectId:
     @dob.setter
     def dob(self, dob):
         '''
-        DOB must be 'X' is it is not known. If it is known, it must be
-        entered as
+        If DOB is not known it must be an empy string '' or 'X'. If it
+        is known, it must be entered as
+
         (a) a string in EDF format 'dd-MMM-yy', as in '30-DEC-1999';
         (b) a string in iso format 'yyyy-mm-dd', as in '1999-12-30'; or
         (c) a datetime object.
         '''
-        if dob == 'X':
-            self._dob = dob
+        if (not dob) or (dob == 'X'):
+            self._dob = 'X'
         else:
             if isinstance(dob, str):
                 try:
@@ -153,6 +168,8 @@ class SubjectId:
 
     @name.setter
     def name(self, name):
+        if not name:
+            name = 'X'
         self._name = remove_space(name)
 
     def to_str(self):
@@ -174,8 +191,8 @@ class SubjectId:
 class RecordingId:
     _len = 80
 
-    def __init__(self, startdate=None, experiment_id='X',
-                 investigator_id='X', equipment_code='X'):
+    def __init__(self, startdate=None, experiment_id='',
+                 investigator_id='', equipment_code=''):
         '''
         startdate input expected to be:
             (a) a string in isoformat ('yyyy-mm-dd'), or
@@ -219,6 +236,8 @@ class RecordingId:
 
     @experiment_id.setter
     def experiment_id(self, experiment_id):
+        if not experiment_id:
+            experiment_id = 'X'
         self._experiment_id = remove_space(experiment_id)
 
     @property
@@ -227,6 +246,8 @@ class RecordingId:
 
     @investigator_id.setter
     def investigator_id(self, investigator_id):
+        if not investigator_id:
+            investigator_id = 'X'
         self._investigator_id = remove_space(investigator_id)
 
     @property
@@ -235,6 +256,8 @@ class RecordingId:
 
     @equipment_code.setter
     def equipment_code(self, equipment_code):
+        if not equipment_code:
+            equipment_code = 'X'
         self._equipment_code = remove_space(equipment_code)
 
     def to_str(self):
