@@ -20,7 +20,7 @@ with edfrw. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import warnings
-from datetime import datetime
+import datetime as dt
 import numpy as np
 
 '''
@@ -115,6 +115,7 @@ class SubjectId:
 
     @code.setter
     def code(self, code):
+        code = code.strip()
         if not code:
             code = 'X'
         self._code = remove_space(code)
@@ -125,6 +126,7 @@ class SubjectId:
 
     @sex.setter
     def sex(self, sex):
+        sex = sex.strip()
         if not sex:
             sex = 'X'
         if sex not in ('M', 'F', 'X'):
@@ -146,21 +148,26 @@ class SubjectId:
         (a) a string in EDF format 'dd-MMM-yy', as in '30-DEC-1999';
         (b) a string in iso format 'yyyy-mm-dd', as in '1999-12-30'; or
         (c) a datetime object.
+
+        In any case the date will be stored as a datetime.date object.
         '''
         if (not dob) or (dob == 'X'):
             self._dob = 'X'
-        else:
-            if isinstance(dob, str):
+        elif isinstance(dob, dt.datetime):
+            self._dob = dob.date()
+        elif isinstance(dob, dt.date):
+            self._dob = dob
+        elif isinstance(dob, str):
                 try:
-                    dob = datetime.strptime(dob, ISO_DATE_FMT)
+                    dob = dt.datetime.strptime(dob, ISO_DATE_FMT)
                 except ValueError:
                     try:
-                        dob = datetime.strptime(dob, EDF_DOB_FMT)
+                        dob = dt.datetime.strptime(dob, EDF_DOB_FMT)
                     except ValueError as error:
                         raise ValueError(error)
-            # The following line will raise an error if dob is not a
-            # datetime object.
-            self._dob = dob.date()
+                self._dob = dob.date()
+        else:
+            raise ValueError('Invalid date format')
 
     @property
     def name(self):
@@ -168,6 +175,7 @@ class SubjectId:
 
     @name.setter
     def name(self, name):
+        name = name.strip()
         if not name:
             name = 'X'
         self._name = remove_space(name)
@@ -212,23 +220,27 @@ class RecordingId:
 
     @startdate.setter
     def startdate(self, startdate):
+        # If startdate is None, create one using current date.
+        if startdate is None:
+            self._startdate = dt.datetime.now().date()
+        elif isinstance(startdate, dt.datetime):
+            self._startdate = startdate.date()
+        elif isinstance(startdate, dt.date):
+            self._startdate = startdate
         # If startdate is a string, try to convert to datetime. A
         # ValueError is raised if the format does not match.
-        if isinstance(startdate, str):
+        elif isinstance(startdate, str):
             try:
-                startdate = datetime.strptime(startdate, ISO_DATE_FMT)
-            except ValueError as error:
+                startdate = dt.datetime.strptime(startdate, ISO_DATE_FMT)
+            except ValueError:
                 try:
-                    startdate = datetime.strptime(startdate,
-                                                  EDF_RECDATE_FMT)
+                    startdate = dt.datetime.strptime(startdate,
+                                                     EDF_RECDATE_FMT)
                 except ValueError as error:
                     raise ValueError(error)
-
-        # If startdate is None, create one using current date.
-        elif startdate is None:
-            startdate = datetime.now()
-
-        self._startdate = startdate.date()
+            self._startdate = startdate.date()
+        else:
+            raise ValueError('Invalid date format')
 
     @property
     def experiment_id(self):
@@ -496,7 +508,7 @@ class Header:
         self.signals = signals
 
         if date_time is None:
-            date_time = datetime.now()
+            date_time = dt.datetime.now()
         self.startdate = date_time
         self.starttime = date_time
 
@@ -513,7 +525,7 @@ class Header:
         main_hdr = ''
         for n in self._sizes:
             main_hdr += '{:<' + str(n) + '}'
-        startdate = datetime.strftime(self.startdate, EDF_HDR_DATE_FMT)
+        startdate = dt.datetime.strftime(self.startdate, EDF_HDR_DATE_FMT)
         starttime = '{:02}.{:02}.{:02}'.format(self.starttime.hour,
                                                self.starttime.minute,
                                                self.starttime.second)
@@ -606,7 +618,7 @@ class Header:
         object.
         '''
         if type(value) is str:
-            value = datetime.strptime(value, ISO_DATE_FMT)
+            value = dt.datetime.strptime(value, ISO_DATE_FMT)
         self._startdate = value.date()
 
     @property
@@ -620,7 +632,7 @@ class Header:
         object.
         '''
         if type(value) is str:
-            value = datetime.strptime(value, '%H:%M:%S')
+            value = dt.datetime.strptime(value, '%H:%M:%S')
         self._starttime = value.time()
 
 
