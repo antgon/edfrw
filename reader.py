@@ -21,10 +21,13 @@ with edfrw. If not, see <http://www.gnu.org/licenses/>.
 
 import time
 import struct
-from datetime import datetime
+import datetime as dt
 import numpy as np
 
 from .headers import (RecordingId, SubjectId, seconds_to_str)
+
+EDF_HDR_DATE_FMT = '%d.%m.%y'
+EDF_HDR_TIME_FMT = '%H.%M.%S'
 
 class HeaderReader:
     def __init__(self, f):
@@ -50,10 +53,10 @@ class HeaderReader:
         self.version = version
         self.subject_id = SubjectId(*subject_id.split(' '))
         self.recording_id = RecordingId(*recording_id.split(' ')[1:])
-        startdate = datetime.strptime(startdate, "%d.%m.%y")
-        self.startdate = datetime.date(startdate)
-        starttime = datetime.strptime(starttime, "%H.%M.%S")
-        self.starttime = datetime.time(starttime)
+        self.startdate = dt.datetime.strptime(
+                startdate, EDF_HDR_DATE_FMT).date()
+        self.starttime = dt.datetime.strptime(
+                starttime, EDF_HDR_TIME_FMT).time()
         self.number_of_bytes = int(number_of_bytes)
         self.reserved = reserved
         self.number_of_data_records = int(number_of_data_records)
