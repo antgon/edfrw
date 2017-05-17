@@ -19,52 +19,30 @@ You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from .headers import Header
-
 class EdfWriter(object):
-    def __init__(self, fname, subject_id, recording_id, signals,
-                 saving_period_s=5, date_time=None):
+    def __init__(self, filename, header):
         '''
-        saving_period_s <int>   How often (in seconds) will the data be
-                                saved to disk? This value sets EDF
-                                header's `duration_of_data_record`,
-                                which is the duration in seconds of one
-                                data record.
+        *filename* <str>
+            EDF file name.
 
-        From the specification:
+        *header*
+            An instance of `headers.Header`.
 
-            The duration of each data record is recommended to be a
-            whole number of seconds and its size (number of bytes) is
-            recommended not to exceed 61440. Only if a 1s data record
-            exceeds this size limit, the duration is recommended to be
-            smaller than 1s (e.g. 0.01).
+        *saving_period_s* <int>
+            How often (in seconds) will the data be saved to disk? This
+            value sets EDF header's `duration_of_data_record`, which is
+            the duration in seconds of one data record.
+
+            From the specification: "The duration of each data record is
+            recommended to be a whole number of seconds and its size
+            (number of bytes) is recommended not to exceed 61440. Only
+            if a 1s data record exceeds this size limit, the duration is
+            recommended to be smaller than 1s (e.g. 0.01)."
         '''
-        self.fname = fname
+        self.fname = filename
         self._f = open(fname, 'wb')
-        duration_of_data_record = int(saving_period_s)
-
-        self.header = Header(
-                subject_id=subject_id,
-                recording_id=recording_id,
-                signals=signals,
-                date_time=date_time,
-                duration_of_data_record=duration_of_data_record)
-
-        self.number_of_signals = len(signals)
-
+        self.header = header
         self.write_header()
-
-    def update_subject_id(self, subject_id):
-        self.header.set_subject_id(subject_id)
-
-    def update_recording_id(self, recording_id):
-        self.header.set_recording_id(recording_id)
-
-    def update_startdate(self, startdate):
-        self.header.set_startdate(startdate)
-
-    def update_starttime(self, starttime):
-        self.header.set_starttime(starttime)
 
     def write_header(self):
         # pack the header
