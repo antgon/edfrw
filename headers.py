@@ -332,7 +332,8 @@ class Signal(object):
 
     def __init__(self, label='', transducer_type='', physical_dim='',
                  physical_min=-1, physical_max=1, digital_min=-32768,
-                 digital_max=32767, prefiltering='', sampling_freq=0):
+                 digital_max=32767, prefiltering='',
+                 number_of_samples_in_data_record=0, sampling_freq=0):
         # initialise these values arbitrarily to aoid errors in
         # _update_gain, which is called every time the values are set
         # by their @property setters.
@@ -350,7 +351,8 @@ class Signal(object):
         self.digital_min = digital_min
         self.digital_max = digital_max
         self.prefiltering = prefiltering
-        self.number_of_samples_in_data_record = 0
+        self.number_of_samples_in_data_record = \
+            number_of_samples_in_data_record
         self.reserved = ''
 
         # Not part of the specification
@@ -447,6 +449,7 @@ class Signal(object):
     @number_of_samples_in_data_record.setter
     def number_of_samples_in_data_record(self, value):
         self._number_of_samples_in_data_record = int(value)
+
 
     @property
     def reserved(self):
@@ -770,8 +773,9 @@ class Header:
         self.number_of_bytes_in_header = (
                 256 + (self.number_of_signals * 256))
         for signal in values:
-            signal.number_of_samples_in_data_record = (
-                    self.duration_of_data_record * signal.sampling_freq)
+            signal.sampling_freq = (
+                    signal.number_of_samples_in_data_record /
+                    self.duration_of_data_record)
         self._signals = values
 
 
