@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import struct
 import warnings
 import datetime as dt
 import numpy as np
@@ -54,26 +55,6 @@ so to avoid issues:
 
 '''
 
-
-
-
-def printhdr(hdr):
-    for key in sorted(hdr.__dict__.keys()):
-        val = hdr.__dict__[key]
-        print('{:32} {}'.format(key, val))
-
-
-def seconds_to_str(s):
-    h = int(s // 3600)
-    m = int(s // 60 % 60)
-    s = s % 60
-    return '{:02d}h {:02d}m {:05.2f}s'.format(h, m, s)
-
-
-def remove_space(text):
-    return text.replace(' ', '_')
-
-
 EDF_HDR_DATE_FMT = '%d.%m.%y'
 EDF_HDR_TIME_FMT = '%H.%M.%S'
 EDF_DOB_FMT = EDF_RECDATE_FMT = '%d-%b-%Y'
@@ -84,8 +65,17 @@ class EdfHeaderException(Exception):
     pass
 
 
-class SubjectId:
+class _SubjectId:
+    '''
+    The subject (patient) identification is a string (80 characters
+    long) in the header of a EDF file than contains information about
+    the patient's code, name, sex, and date of birth.
+
+    This class handles that information. It is seldom useful on its own
+    but rather as an attribute of `class::Header`.
+    '''
     _len = 80
+    __slots__ = ['_code', '_sex', '_dob', '_name']
 
     def __init__(self, code='', sex='', dob='', name=''):
         '''
@@ -98,11 +88,6 @@ class SubjectId:
 
         If any field is not known it can be entered as 'X' (as per
         EDF standard) or as an empty string ''.
-
-        `dob` is expected to be:
-            (a) a string in iso format 'yyyy-mm-dd', or
-            (b) a datetime instance, or
-            (c) '' or 'X' if dob is unknown.
         '''
         self.code = code
         self.sex = sex
@@ -118,7 +103,7 @@ class SubjectId:
         code = code.strip()
         if not code:
             code = 'X'
-        self._code = remove_space(code)
+        self._code = code.replace(' ', '_')
 
     @property
     def sex(self):
@@ -178,7 +163,7 @@ class SubjectId:
         name = name.strip()
         if not name:
             name = 'X'
-        self._name = remove_space(name)
+        self._name = name.replace(' ', '_')
 
     def to_str(self):
         try:
@@ -195,20 +180,26 @@ class SubjectId:
         fmt = self.to_str()
         return format(fmt, format_spec)
 
+    def __str__(self):
+        return self.to_str()
 
-class RecordingId:
+
+class _RecordingId:
+    '''
+    The recording identification is a string of 80 characters in the
+    header of a EDF file. It contains information about the start date,
+    experiment ID, investigator ID, and equipment code, each of these
+    separated by a space.
+
+    This class handles that information. It is seldom useful on its own
+    but rather as an attribute of `class::Header`.
+    '''
     _len = 80
+    __slots__ = ['_startdate', '_experiment_id', '_investigator_id',
+                 '_equipment_code']
 
     def __init__(self, startdate=None, experiment_id='',
                  investigator_id='', equipment_code=''):
-        '''
-        startdate input expected to be:
-            (a) a string in isoformat ('yyyy-mm-dd'), or
-            (b) a `datetime` instance, as in e.g. datetime.now(), or
-            (c) None, in which case the current date will be set.
-            In all cases startdate will be converted to the string
-            format required by the EDF specification.
-        '''
         self.startdate = startdate
         self.experiment_id = experiment_id
         self.investigator_id = investigator_id
@@ -216,6 +207,15 @@ class RecordingId:
 
     @property
     def startdate(self):
+        """
+        *startdate* input expected to be:
+            (a) a string in isoformat ('yyyy-mm-dd'), or
+            (b) a `datetime` instance, as in e.g. datetime.now(), or
+            (c) a date string with format '%d-%b-%Y', which is the
+                format required by EDF for this field.
+            (d) None, in which case the current date will be used.
+        In all cases startdate will be saved as a datetime object.
+        """
         return self._startdate
 
     @startdate.setter
@@ -248,9 +248,10 @@ class RecordingId:
 
     @experiment_id.setter
     def experiment_id(self, experiment_id):
+        experiment_id = experiment_id.strip()
         if not experiment_id:
             experiment_id = 'X'
-        self._experiment_id = remove_space(experiment_id)
+        self._experiment_id = experiment_id.replace(' ', '_')
 
     @property
     def investigator_id(self):
@@ -258,9 +259,10 @@ class RecordingId:
 
     @investigator_id.setter
     def investigator_id(self, investigator_id):
+        investigator_id = investigator_id.strip()
         if not investigator_id:
             investigator_id = 'X'
-        self._investigator_id = remove_space(investigator_id)
+        self._investigator_id = investigator_id.replace(' ', '_')
 
     @property
     def equipment_code(self):
@@ -268,9 +270,10 @@ class RecordingId:
 
     @equipment_code.setter
     def equipment_code(self, equipment_code):
+        equipment_code = equipment_code.strip()
         if not equipment_code:
             equipment_code = 'X'
-        self._equipment_code = remove_space(equipment_code)
+        self._equipment_code = equipment_code.replace(' ', '_')
 
     def to_str(self):
         rec_id = 'Startdate {} {} {} {}'.format(
@@ -286,8 +289,27 @@ class RecordingId:
         fmt = self.to_str()
         return format(fmt, format_spec)
 
+    def __str__(self):
+        return self.to_str()
+
 
 class Signal(object):
+    """
+    Properties of a signal in an EDF file.
+
+    These properties are stored in the header of an EDF file (after
+    the first 256 bytes which contain the 'main' header). Each signal
+    header is 256 bytes long.
+
+    *physical_dim*
+        Physical dimension. A string that must start with a 'prefix'
+        (e.g. 'u' for 'micro') followed by the 'basic dimension' (e.g.
+        'V' for volts). Other examples of basic dimensions are  'K',
+        'degC' or 'degF' for temperature, and '%' for SaO2. Powers  are
+        denotes by '^', as in 'V^2/Hz'. An empty string represents an
+        uncalibrated signal. For standards on labels and units, see
+        http://www.edfplus.info/specs/edftexts.html
+    """
 
     (LABEL, TRANSDUCER_TYPE, PHYSICAL_DIM, PHYSICAL_MIN, PHYSICAL_MAX,
      DIGITAL_MIN, DIGITAL_MAX, PREFILTERING, NSAMPLES, RESERVED
@@ -301,9 +323,9 @@ class Signal(object):
     # Byte size of each field
     _sizes = (16, 80,  8,  8,  8,  8,  8, 80,  8, 32)
 
-    # Slots are created by prepending an underscore to each field. An
-    # extra field 'sampling_freq' (not part of the EDF specification) is
-    # added for convenience.
+    # Slots are created by prepending an underscore to each field. Extra
+    # extra fields 'sampling_freq' and 'gain' (not part of the EDF
+    # specification) are added for convenience.
     __slots__ = ['_' + field for field in _fields]
     __slots__.append('sampling_freq')
     __slots__.append('gain')
@@ -311,29 +333,15 @@ class Signal(object):
     def __init__(self, label='', transducer_type='', physical_dim='',
                  physical_min=-1, physical_max=1, digital_min=-32768,
                  digital_max=32767, prefiltering='', sampling_freq=0):
-        '''
-        'physical dimension' (for example uV) must start with a 'prefix'
-        (in this example u), followed by the 'basic dimension' (in this
-        example V). The 'basic dimension' for the EXG's is 'V', for
-        temperature it is 'K', 'degC' or 'degF' and for SaO2 it is '%',
-        all without the quotes. The prefix scales the 'physical
-        dimension' according to Table 1. Powers in a 'basic dimension'
-        (for instance the basic dimension used in frequency analysis can
-        be Volts to the power 2 per Hertz) are noted by ^, in this
-        example V^2/Hz.
+        # initialise these values arbitrarily to aoid errors in
+        # _update_gain, which is called every time the values are set
+        # by their @property setters.
+        self._digital_min = 0
+        self._digital_max =1
+        self._physical_min = 0
+        self._physical_max = 1
 
-        "In case of uncalibrated signals, physical dimension is left
-        empty (that is 8 spaces), while 'Physical maximum' and 'Physical
-        minimum' must still contain different values"
-
-        For standards on labels and units, see
-        http://www.edfplus.info/specs/edftexts.html
-        '''
-        # Initialise these values to ones to avoid division by zero
-        # in _update_gain().
-        self._digital_min, self._digital_max = (0, 1)
-        self._physical_min, self._physical_max = (0, 1)
-
+        # Set EDF fields.
         self.label = label
         self.transducer_type = transducer_type
         self.physical_dim = physical_dim
@@ -343,7 +351,7 @@ class Signal(object):
         self.digital_max = digital_max
         self.prefiltering = prefiltering
         self.number_of_samples_in_data_record = 0
-        self._reserved = ''
+        self.reserved = ''
 
         # Not part of the specification
         self.sampling_freq = sampling_freq
@@ -358,7 +366,7 @@ class Signal(object):
         if len(value) > size:
             warnings.warn('Label is too long.')
             value = value[:size]
-        self._label = remove_space(value)
+        self._label = value.strip() #replace(' ', '_')
 
     @property
     def transducer_type(self):
@@ -370,7 +378,7 @@ class Signal(object):
         if len(value) > size:
             warnings.warn('Transducer type too long.')
             value = value[:size]
-        self._transducer_type = value
+        self._transducer_type = value.strip()
 
     @property
     def physical_dim(self):
@@ -382,7 +390,7 @@ class Signal(object):
         if len(value) > size:
             warnings.warn('Physical dimension is too long.')
             value = value[:size]
-        self._physical_dim = value
+        self._physical_dim = value.strip()
 
     @property
     def physical_min(self):
@@ -430,7 +438,7 @@ class Signal(object):
         if len(value) > size:
             warnings.warn('Prefiltering is too long.')
             value = value[:size]
-        self._prefiltering = value
+        self._prefiltering = value.strip()
 
     @property
     def number_of_samples_in_data_record(self):
@@ -438,7 +446,15 @@ class Signal(object):
 
     @number_of_samples_in_data_record.setter
     def number_of_samples_in_data_record(self, value):
-        self._number_of_samples_in_data_record = value
+        self._number_of_samples_in_data_record = int(value)
+
+    @property
+    def reserved(self):
+        return self._reserved
+
+    @reserved.setter
+    def reserved(self, value):
+        self._reserved = value.strip()
 
     def __str__(self):
         return self.label
@@ -447,25 +463,38 @@ class Signal(object):
         return '<EDFSignal ' + self.label + '>'
 
     def _update_gain(self):
-        '''
+        """
         Calculate gain from settings. Used to convert between digital
-        and physical values.
-        '''
-        # TODO maybe set gain and offset only if physical dimenstion
-        # is defined. Otherwise gain = 1 and offset = 0 to get
-        # actual adc values in output
-        dy = self.physical_max - self.physical_min
-        dx = self.digital_max - self.digital_min
-        self.gain = dy / dx
+        and physical values. Only useful if a physical dimension was
+        defined.
+        """
+        if self.physical_dim:
+            dy = self.physical_max - self.physical_min
+            dx = self.digital_max - self.digital_min
+            self.gain = dy / dx
+        else:
+            self.gain = 1
 
     def dig_to_phys(self, sample):
-        '''
-        Convert a digital value to a physical value.
+        """
+        Convert a digital value to a physical value. If no physical
+        dimension has been defined the digital value is returned without
+        modification.
 
         Follows the equation of a straight line:
             y = mx + b
-        '''
-        return (self.gain * sample) + self.physical_min
+        """
+        if self.physical_dim:
+            return (self.gain * sample) + self.physical_min
+        else:
+            return sample
+
+    def print(self):
+        fields = list(self._fields)
+        fields.extend(['sampling_freq', 'gain'])
+        for field in fields:
+            val = self.__getattribute__(field)
+            print('{:33} {}'.format(field, val))
 
 
 class Header:
@@ -476,41 +505,50 @@ class Header:
                'starttime', 'number_of_bytes_in_header', 'reserved',
                'number_of_data_records', 'duration_of_data_record',
                'number_of_signals')
+
     _sizes = (8, 80, 80, 8, 8, 8, 44, 8, 8, 4)
 
-    def __init__(self, subject_id,  recording_id, signals,
-                 duration_of_data_record, date_time=None, reserved=''):
-        '''
-        subject_id and recording_id must be object from those classes.
+    __slots__ = ['version', '_subject_id', '_recording_id',
+                 '_startdate', '_starttime',
+                 '_number_of_bytes_in_header', 'reserved',
+                 '_number_of_data_records', '_duration_of_data_record',
+                 '_number_of_signals', '_signals',
+                 'number_of_samples_in_data_record']
 
-        signals must be a list of objects of class Signal
+    def __init__(self, subject_code='', subject_sex='', subject_dob='',
+                 subject_name='', experiment_id='', investigator_id='',
+                 equipment_code='', duration_of_data_record=0,
+                 date_time=None, reserved='', signals=[]):
+        """
+        Initialises an EDF header. Default values are empty (ie.
+        unknown).
 
-        reserved must only start with 'EDF+C' or 'EDF+D' if there is an
-        annotations signal.
+        *signals* must be a list of objects of `class::Signal`.
 
-        duration_of_data_record recommended to be an integer value
-        '''
-        self.version = '0'
-        self.subject_id = subject_id
-        self.recording_id = recording_id
+        *reserved* must be empty is the file conforms to EDF format,
+        or start 'EDF+C' or 'EDF+D' if there is an annotations signal
+        (EDF+ format).
+
+        *duration_of_data_record* can be a float, but it is recommended
+        to be an integer value.
+        """
+        self.version = '0' # Version is always 0.
+        if date_time is None:
+            date_time = dt.datetime.now()
+        self.startdate = date_time
+        self.starttime = date_time
+        self.subject_id = _SubjectId(subject_code, subject_sex,
+                                     subject_dob, subject_name)
+        self.recording_id = _RecordingId(date_time, experiment_id,
+                                         investigator_id,
+                                         equipment_code)
         self.reserved = reserved
         # number_of_data_records is a counter so it is important
         # to initialise to 0
         self.number_of_data_records = 0
         self.duration_of_data_record = duration_of_data_record
-        self.number_of_signals = len(signals)
-        self.number_of_bytes_in_header = (
-                256 + (self.number_of_signals * 256))
 
-        for signal in signals:
-            signal.number_of_samples_in_data_record = (
-                self.duration_of_data_record * signal.sampling_freq)
         self.signals = signals
-
-        if date_time is None:
-            date_time = dt.datetime.now()
-        self.startdate = date_time
-        self.starttime = date_time
 
         # Not part of the specification
         nsamples = [signal.number_of_samples_in_data_record for signal
@@ -518,10 +556,10 @@ class Header:
         self.number_of_samples_in_data_record = np.sum(nsamples)
 
     def pack(self):
-        '''
+        """
         Returns the header as a bytes object formatted as required by
         the EDF specification.
-        '''
+        """
         main_hdr = ''
         for n in self._sizes:
             main_hdr += '{:<' + str(n) + '}'
@@ -589,22 +627,55 @@ class Header:
 
         return main_hdr + sig_hdr
 
+    def print(self):
+        """
+        Display the contents of the header.
+        """
+        for field in self._fields:
+            val = self.__getattribute__(field)
+            print('{:27} {}'.format(field, val))
+
     @property
     def subject_id(self):
+        """
+        Subject (i.e. patient) identification (string). Spaces will be
+        replaced by underscores.
+        """
         return self._subject_id
 
     @subject_id.setter
     def subject_id(self, value):
-        assert isinstance(value, SubjectId)
+        if isinstance(value, str):
+            try:
+                code, sex, dob, name = value.split()
+                value = _SubjectId(code, sex, dob, name)
+            except ValueError:
+                raise EdfHeaderException('subject_id not understood')
+        if not isinstance(value, _SubjectId):
+            raise EdfHeaderException(
+                    'subject_id must be of class edfrw._SubjectId')
         self._subject_id = value
 
     @property
     def recording_id(self):
+        """
+        Recording ID (string). Spaces will be replaced by underscores.
+        """
         return self._recording_id
 
     @recording_id.setter
     def recording_id(self, value):
-        assert isinstance(value, RecordingId)
+        if isinstance(value, str):
+            try:
+                (start_str, startdate, experiment_id, investigator_id,
+                 equipment_code) = value.split()
+                value = _RecordingId(startdate, experiment_id,
+                                    investigator_id, equipment_code)
+            except ValueError:
+                raise EdfHeaderException('recording_id not understood')
+        if not isinstance(value, _RecordingId):
+            raise EdfHeaderException(
+                    'recording_id must be of class edfrw._RecordingId')
         self._recording_id = value
 
     @property
@@ -614,11 +685,19 @@ class Header:
     @startdate.setter
     def startdate(self, value):
         '''
-        startdate must be a string of format 'yyyy-mm-dd' or a datetime
-        object.
+        Start date. It must be either
+        (a) a string 'yyyy-mm-dd', e.g. '2016-10-25', or
+        (b) a string 'd.m.y' as required by EDF, e.g. '16.10.25', or
+        (c) a datetime object.
         '''
         if type(value) is str:
-            value = dt.datetime.strptime(value, ISO_DATE_FMT)
+            try:
+                value = dt.datetime.strptime(value, ISO_DATE_FMT)
+            except:
+                try:
+                    value = dt.datetime.strptime(value, EDF_HDR_DATE_FMT)
+                except ValueError as error:
+                    raise EdfHeaderException(error)
         self._startdate = value.date()
 
     @property
@@ -628,55 +707,93 @@ class Header:
     @starttime.setter
     def starttime(self, value):
         '''
-        starttime must be a string of format 'H:M:S' or a datetime
-        object.
+        Start time. It must be either
+        (a) a string 'H.M.S' as required by EDF, e.g. '12.15.05', or
+        (b) a string in standard format 'H:M:S', e.g. '12:15:05', or
+        (b) a datetime object.
         '''
         if type(value) is str:
-            value = dt.datetime.strptime(value, '%H:%M:%S')
+            try:
+                value = dt.datetime.strptime(value, '%H:%M:%S')
+            except:
+                try:
+                    value = dt.datetime.strptime(value, EDF_HDR_TIME_FMT)
+                except ValueError as error:
+                    raise EdfHeaderException(error)
         self._starttime = value.time()
 
+    @property
+    def number_of_bytes_in_header(self):
+        # This value depends on the number of signals, so it should
+        # be updated whenever the number of signals changes.
+        return self._number_of_bytes_in_header
+
+    @number_of_bytes_in_header.setter
+    def number_of_bytes_in_header(self, value):
+        self._number_of_bytes_in_header = int(value)
+
+    @property
+    def number_of_data_records(self):
+        return self._number_of_data_records
+
+    @number_of_data_records.setter
+    def number_of_data_records(self, value):
+        self._number_of_data_records = int(value)
+
+    @property
+    def duration_of_data_record(self):
+        # This value is recommended (but not required) to be an integer
+        return self._duration_of_data_record
+
+    @duration_of_data_record.setter
+    def duration_of_data_record(self, value):
+        self._duration_of_data_record = float(value)
+
+    @property
+    def number_of_signals(self):
+        return self._number_of_signals
+
+    @number_of_signals.setter
+    def number_of_signals(self, value):
+        self._number_of_signals = int(value)
+
+    @property
+    def signals(self):
+        return self._signals
+
+    @signals.setter
+    def signals(self, values):
+        # Several values in the header depend on the number of signals.
+        # Thus, these values must be updated whenever the signals list
+        # changes.
+        self.number_of_signals = len(values)
+        self.number_of_bytes_in_header = (
+                256 + (self.number_of_signals * 256))
+        for signal in values:
+            signal.number_of_samples_in_data_record = (
+                    self.duration_of_data_record * signal.sampling_freq)
+        self._signals = values
 
 
 if __name__ == '__main__':
 
-    # s = Signal()
-    sampling_freq = 200  # Hz
+    fname = '../daq/data/SC4181E0-PSG.edf'
 
-    # In analogy to human EEG, first channel is frontal (right) relative
-    # to posterior (right), and 2nd channel is central (right) relative
-    # to posterior (right).
-    eeg1 = Signal(label='EEG F4-P4', physical_dim='uV',
-                  physical_min=-300,
-                  physical_max=300, digital_min=-2048,
-                  digital_max=2047,
-                  prefiltering='HP:0.5Hz LP:100Hz',
-                  sampling_freq=sampling_freq)
+    header = Header(subject_dob='2016-08-09')
+    header.subject_id.name = 'Ramiro'
 
-    eeg2 = Signal(label='EEG C4-P4', physical_dim='uV',
-                  physical_min=-300,
-                  physical_max=300, digital_min=-2048,
-                  digital_max=2047,
-                  prefiltering='HP:0.5Hz LP:100Hz',
-                  sampling_freq=sampling_freq)
+    header.signals = [Signal('EEG1'), Signal('EEG2')]
 
-    subject_id = SubjectId(code='X', sex='X', dob='X', name='X')
+    #
 
-    recording_id = RecordingId(startdate=None, experiment_id='X',
-                               investigator_id='X', equipment_code='X')
-
-    signals = [eeg1, eeg2]
-
-    header = Header(subject_id,  recording_id, signals,
-                    duration_of_data_record=5, date_time=None,
-                    reserved='')
-
-    fname = "foofile.edf"
-
-    edf = EdfWriter(fname, subject_id, recording_id, signals,
-                    saving_period_s=5, date_time=None)
-
-    a = np.arange(1000).astype('int16')
-    b = a + 10000
-
-    edf.write_data_record(np.r_[a, b])
-    edf.close()
+    #
+    # fname = "foofile.edf"
+    #
+    # edf = EdfWriter(fname, subject_id, recording_id, signals,
+    #                 saving_period_s=5, date_time=None)
+    #
+    # a = np.arange(1000).astype('int16')
+    # b = a + 10000
+    #
+    # edf.write_data_record(np.r_[a, b])
+    # edf.close()
