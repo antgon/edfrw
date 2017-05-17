@@ -65,7 +65,7 @@ class EdfHeaderException(Exception):
     pass
 
 
-class _SubjectId:
+class EdfSubjectId:
     '''
     The subject (patient) identification is a string (80 characters
     long) in the header of a EDF file than contains information about
@@ -184,7 +184,7 @@ class _SubjectId:
         return self.to_str()
 
 
-class _RecordingId:
+class EdfRecordingId:
     '''
     The recording identification is a string of 80 characters in the
     header of a EDF file. It contains information about the start date,
@@ -293,7 +293,7 @@ class _RecordingId:
         return self.to_str()
 
 
-class Signal(object):
+class EdfSignal(object):
     """
     Properties of a signal in an EDF file.
 
@@ -500,7 +500,7 @@ class Signal(object):
             print('{:33} {}'.format(field, val))
 
 
-class Header:
+class EdfHeader:
 
     # Fields and sizes (i.e. number of bytes) as per the EDF
     # specification.
@@ -540,9 +540,9 @@ class Header:
             date_time = dt.datetime.now()
         self.startdate = date_time
         self.starttime = date_time
-        self.subject_id = _SubjectId(subject_code, subject_sex,
+        self.subject_id = EdfSubjectId(subject_code, subject_sex,
                                      subject_dob, subject_name)
-        self.recording_id = _RecordingId(date_time, experiment_id,
+        self.recording_id = EdfRecordingId(date_time, experiment_id,
                                          investigator_id,
                                          equipment_code)
         self.reserved = reserved
@@ -550,13 +550,7 @@ class Header:
         # to initialise to 0
         self.number_of_data_records = 0
         self.duration_of_data_record = duration_of_data_record
-
         self.signals = signals
-
-        # Not part of the specification
-        nsamples = [signal.number_of_samples_in_data_record for signal
-                    in self.signals]
-        self.number_of_samples_in_data_record = np.sum(nsamples)
 
     def pack(self):
         """
@@ -651,12 +645,12 @@ class Header:
         if isinstance(value, str):
             try:
                 code, sex, dob, name = value.split()
-                value = _SubjectId(code, sex, dob, name)
+                value = EdfSubjectId(code, sex, dob, name)
             except ValueError:
                 raise EdfHeaderException('subject_id not understood')
-        if not isinstance(value, _SubjectId):
+        if not isinstance(value, EdfSubjectId):
             raise EdfHeaderException(
-                    'subject_id must be of class edfrw._SubjectId')
+                    'subject_id must be of class edfrw.EdfSubjectId')
         self._subject_id = value
 
     @property
@@ -672,13 +666,13 @@ class Header:
             try:
                 (start_str, startdate, experiment_id, investigator_id,
                  equipment_code) = value.split()
-                value = _RecordingId(startdate, experiment_id,
+                value = EdfRecordingId(startdate, experiment_id,
                                     investigator_id, equipment_code)
             except ValueError:
                 raise EdfHeaderException('recording_id not understood')
-        if not isinstance(value, _RecordingId):
+        if not isinstance(value, EdfRecordingId):
             raise EdfHeaderException(
-                    'recording_id must be of class edfrw._RecordingId')
+                    'recording_id must be of class edfrw.EdfRecordingId')
         self._recording_id = value
 
     @property
@@ -772,10 +766,15 @@ class Header:
         self.number_of_signals = len(values)
         self.number_of_bytes_in_header = (
                 256 + (self.number_of_signals * 256))
+        nsamples = 0
         for signal in values:
             signal.sampling_freq = (
                     signal.number_of_samples_in_data_record /
                     self.duration_of_data_record)
+            nsamples += signal.number_of_samples_in_data_record
+        # header.number_of_samples_in_data_record is not part of the
+        # EDF specification but it is handy to have.
+        self.number_of_samples_in_data_record = nsamples
         self._signals = values
 
 

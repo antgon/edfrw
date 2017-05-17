@@ -24,7 +24,7 @@ import sys
 if (sys.version_info.major < 3) or (sys.version_info.minor < 5):
     raise Exception('PyDaq requires Python 3.5 or greater')
 
-from .headers import (Signal, RecordingId, SubjectId)
+from .headers import (EdfHeader, EdfSignal, EdfRecordingId, EdfSubjectId)
 from .writer import EdfWriter
 from .reader import EdfReader
 

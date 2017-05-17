@@ -18,50 +18,32 @@ for more details.
 You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
 '''
-
-import time
 import struct
-import datetime as dt
 import numpy as np
 
-from .headers import (RecordingId, SubjectId, seconds_to_str)
+from .headers import (EdfHeader, EdfSignal)
 
-EDF_HDR_DATE_FMT = '%d.%m.%y'
-EDF_HDR_TIME_FMT = '%H.%M.%S'
 
-class HeaderReader:
-    def __init__(self, f):
-        hdr_fmt = ('<' + '8s' + '80s' + '80s' + '8s' + '8s' + '8s' +
-                    '44s' + '8s' + '8s' + '4s')
-        f.seek(0)
-        hdr = f.read(256)
-        hdr = struct.unpack(hdr_fmt, hdr)
-        hdr = [line.decode('ascii').strip() for line in hdr]
+def header_fromfile(filename):
+    # String that represents the first 256 bytes in the header in the
+    # format required by struct.unpack
+    hdr_fmt = '<'
+    for size in Header._sizes:
+        hdr_fmt += '{}s'.format(size)
 
-        (version,                  # version of this data format (0)
-         subject_id,               # local patient identification
-         recording_id,             # local recording identification
-         startdate,                # startdate of recording (dd.mm.yy)
-         starttime,                # starttime of recording (hh.mm.ss)
-         number_of_bytes,          # number of bytes in header record
-         reserved,                 # reserved
-         number_of_data_records,   # number of data records
-         duration_of_data_records, # duration of a data record (s)
-         number_of_signals         # number of signals in data record
-        ) = hdr
+    # Main header (first 256 characters in EDF file)
+    header = Header()
+    with open(filename, 'rb') as edffile:
+        edffile.seek(0)
+        hdr_str = edffile.read(256)
 
-        self.version = version
-        self.subject_id = SubjectId(*subject_id.split(' '))
-        self.recording_id = RecordingId(*recording_id.split(' ')[1:])
-        self.startdate = dt.datetime.strptime(
-                startdate, EDF_HDR_DATE_FMT).date()
-        self.starttime = dt.datetime.strptime(
-                starttime, EDF_HDR_TIME_FMT).time()
-        self.number_of_bytes = int(number_of_bytes)
-        self.reserved = reserved
-        self.number_of_data_records = int(number_of_data_records)
-        self.duration_of_data_records = float(duration_of_data_records)
-        self.number_of_signals = int(number_of_signals)
+        # Unpack the header
+        hdr_str = struct.unpack(hdr_fmt, hdr_str)
+        # Convert from bytes to str
+        hdr_str = [field.decode('ascii') for field in hdr_str]
+        # update Header with the new values
+        for (field, value) in zip(Header._fields, hdr_str):
+            setattr(header, field, value)
 
         # Signal header.
         # After the main header (256 bytes) there are an additional 256
@@ -70,88 +52,78 @@ class HeaderReader:
         # for one signal, then all entries for the next signal, etc).
         # So each entry must be read 'ns' times, where 'ns' is the
         # number of signals in the file.
-        # sig_fmt = '<' + ('{}s' * 10)
-        # sig_bites = np.array([16, 80, 8, 8, 8, 8, 8, 80, 8, 32])
-        # sig_bites *= self.number_of_signals
-        # sig_fmt = sig_fmt.format(*sig_bites)
-        # hdr = f.read(self.number_of_signals * 256)
-        # hdr = struct.unpack(sig_fmt, hdr)
-        # hdr = [line.decode('ascii').strip() for line in hdr]
+        edffile.seek(256)
+        sig_str = edffile.read(256 * header.number_of_signals)
 
-        ns = self.number_of_signals
+    sig_sizes = np.array(Signal._sizes).repeat(
+            header.number_of_signals)
+    # String that represents bytes in the header that contain signal
+    # information (as required by struct.unpack)
+    sig_fmt = '<'
+    for size in sig_sizes:
+        sig_fmt += '{}s'.format(size)
+    sig_str = struct.unpack(sig_fmt, sig_str)
 
-        label = np.fromfile(f, '<S16', ns)
-        label = label.astype(str)
-        self.label = np.array([s.strip() for s in label])
+    signals = []
+    for n in range(header.number_of_signals):
+        new_signal = Signal()
+        new_signal_str = sig_str[n::header.number_of_signals]
+        for index, field in enumerate(Signal._fields):
+            value = new_signal_str[index].decode('ascii')
+            setattr(new_signal, field, value)
+        signals.append(new_signal)
 
-        transducer = np.fromfile(f, '<S80', ns)
-        transducer = transducer.astype(str)
-        self.transducer = np.array([s.strip() for s in transducer])
+    header.signals = signals
+    return header
 
-        physical_dim = np.fromfile(f, '<S8', ns)
-        physical_dim = physical_dim.astype(str)
-        self.physical_dim = np.array([s.strip() for s in physical_dim])
-
-        physical_min = np.fromfile(f, '<S8', ns)
-        self.physical_min = physical_min.astype(float)
-
-        physical_max = np.fromfile(f, '<S8', ns)
-        self.physical_max = physical_max.astype(float)
-
-        digital_min = np.fromfile(f, '<S8', ns)
-        self.digital_min = digital_min.astype(int)
-
-        digital_max = np.fromfile(f, '<S8', ns)
-        self.digital_max = digital_max.astype(int)
-
-        prefiltering = np.fromfile(f, '<S80', ns)
-        prefiltering = prefiltering.astype(str)
-        self.prefiltering = np.array([s.strip() for s in prefiltering])
-
-        number_of_samples = np.fromfile(f, '<S8', ns)
-        self.number_of_samples = number_of_samples.astype(int)
-
-        reserved = np.fromfile(f, '<S32', ns)
-        reserved = reserved.astype(str)
-        reserved = np.array([s.strip() for s in reserved])
-
-        # Extra attributes.
-        # These attributes are not part of the standard EDF header, but
-        # are added because they are useful.
-
-        # Sampling frequency of each field.
-        # Each set of signals is saved every 'duration_of_data_records',
-        # so if a signal's number_of_samples is e.g. 3000 and the
-        # duration_of_data_records is 30 seconds, then the sampling
-        # frequency will be 3000 / 30 = 100 Hz
-        if self.duration_of_data_records == 0:
-            self.sampling_freq = np.nan
-        else:
-            self.sampling_freq = (self.number_of_samples /
-                self.duration_of_data_records)
-
-        # String representing the total duration of the recording.
-        s = self.number_of_data_records * self.duration_of_data_records
-        self.duration = seconds_to_str(s)
 
 class EdfReader(object):
-    def __init__(self, fname):
-        self._f = open(fname, mode = 'rb')
-        self.header = HeaderReader(self._f)
+    def __init__(self, filename):
+        self.header = header_fromfile(filename)
+        self.filename = filename
+        self.open()
+
+    def open(self):
+        self._f = open(self.filename, mode = 'rb')
+
+    def read_record(self, rec_number):
+        # TODO This function is still incomplete
+        """
+        Returns data from record *rec_number*.
+        """
+        if rec_number > self.header.number_of_data_records:
+            msg = ('There are ' +
+                   str(self.header.number_of_data_records) +
+                   ' data records ' +
+                   '(you requested record ' +
+                   str(rec_number))
+            print(msg)
+            return
+        pointer = (
+                (rec_number *
+                 self.header.number_of_samples_in_data_record) +
+                self.header.number_of_bytes_in_header)
+        self._f.seek(pointer)
+        # Data are saved as int16, so the number of bytes to read is
+        # twice the number of samles requested.
+        nsamples = self.header.number_of_samples_in_data_record * 2
+        samples = self._f.read(nsamples)
+        samples = np.frombuffer(samples, 'int16')
+        return samples
 
     def close(self):
         self._f.close()
 
+
 if __name__ == "__main__":
-    import pandas as pd
+    edf = EdfReader('../daq/data/SC4181E0-PSG.edf')
+    edf.header.print()
 
-    edf = EdfReader('data/SC4181E0-PSG.edf')
-    signals = [pd.Series(), pd.Series(), pd.Series()]
+    names = [signal.label for signal in edf.header.signals]
+    sizes = [signal.number_of_samples_in_data_record for signal
+             in edf.header.signals]
+    # int16 char is h' or '<i2'
+    offsets = [(np.int16, size*2) for size in sizes]
 
-    # This read all the data (which is a lot). Not very efficient.
-    for nrec in range(edf.header.number_of_data_records):
-        for nsig in range(edf.header.number_of_signals):
-            nr = edf.header.number_of_samples[nsig]
-            y = np.fromfile(edf._f, 'int16', nr)
-            y = pd.Series(y)
-            signals[nsig] = signals[nsig].append(y)
+
+    #with edf
