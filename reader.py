@@ -21,7 +21,7 @@ with edfrw. If not, see <http://www.gnu.org/licenses/>.
 import struct
 import numpy as np
 
-from edfrw.headers import (EdfHeader, EdfSignal)
+from edfrw import (EdfHeader, EdfSignal)
 
 
 def header_fromfile(filename):
@@ -77,12 +77,6 @@ def header_fromfile(filename):
                 new_signal.number_of_samples_in_data_record /
                 header.duration_of_data_record)
         signals.append(new_signal)
-
-    # EdfHeader.number_of_samples_in_data_record is not part of the EDF
-    # specification but it is useful to have.
-    nsamples = [signal.number_of_samples_in_data_record for signal in
-                signals]
-    header.number_of_samples_in_data_record = np.sum(nsamples)
 
     header.signals = signals
     return header

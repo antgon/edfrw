@@ -22,7 +22,6 @@ with edfrw. If not, see <http://www.gnu.org/licenses/>.
 import struct
 import warnings
 import datetime as dt
-#import numpy as np
 
 EDF_HDR_DATE_FMT = '%d.%m.%y'
 EDF_HDR_TIME_FMT = '%H.%M.%S'
@@ -520,6 +519,9 @@ class EdfHeader:
         self.duration_of_data_record = duration_of_data_record
         self.signals = signals
 
+        # This attribute is not part of the EDF specification.
+        self.number_of_samples_in_data_record = 0
+
     def pack(self):
         """
         Returns the header as a bytes object formatted as required by
@@ -750,6 +752,14 @@ class EdfHeader:
         # # header.number_of_samples_in_data_record is not part of the
         # # EDF specification but it is handy to have.
         # self.number_of_samples_in_data_record = nsamples
+
+        # number_of_samples_in_data_record is not part of the EDF
+        # specification but it is useful to have.
+        nsamples = 0
+        for signal in values:
+            nsamples += signal.number_of_samples_in_data_record
+        self.number_of_samples_in_data_record = nsamples
+
         self._signals = values
 
 
