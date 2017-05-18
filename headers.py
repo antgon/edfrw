@@ -22,38 +22,7 @@ with edfrw. If not, see <http://www.gnu.org/licenses/>.
 import struct
 import warnings
 import datetime as dt
-import numpy as np
-
-'''
-Two other ways of reading the header:
-
-(1) Reading bytes directly
-head = f.read(256)
-version = head[0:8]
-subject = head[8:88]
-
-(2) One 'fromfile' using a pre-defined dtype:
-dty = np.dtype([('version', 'S8'), ('subject', 'S80')])
-head = np.fromfile(f, dty, 1)
-head['subject']
-head.dtype.names
-'''
-
-'''
-There are two different formats for dates in the EDF specs.
-
-header.startdate is 'dd.mm.yy' as in '30.12.99' '%d.%m.%y'
-subject_id.dob and recording_id.startdate are 'dd-MMM-yy' as in
-'30-DEC-1999'
-
-so to avoid issues:
- - input date can only be as datetime object or a str in (iso format
- 'yyyy-mm-dd'
-   or edf format)
- - store all internally as datetime object
- - when packing headers, format to string as required
-
-'''
+#import numpy as np
 
 EDF_HDR_DATE_FMT = '%d.%m.%y'
 EDF_HDR_TIME_FMT = '%H.%M.%S'
@@ -768,9 +737,12 @@ class EdfHeader:
                 256 + (self.number_of_signals * 256))
         nsamples = 0
         for signal in values:
-            signal.sampling_freq = (
-                    signal.number_of_samples_in_data_record /
-                    self.duration_of_data_record)
+            try:
+                signal.sampling_freq = (
+                        signal.number_of_samples_in_data_record /
+                        self.duration_of_data_record)
+            except ZeroDivisionError:
+                signal.sampling_freq = None
             nsamples += signal.number_of_samples_in_data_record
         # header.number_of_samples_in_data_record is not part of the
         # EDF specification but it is handy to have.
@@ -782,21 +754,7 @@ if __name__ == '__main__':
 
     fname = '../daq/data/SC4181E0-PSG.edf'
 
-    header = Header(subject_dob='2016-08-09')
+    header = EdfHeader(subject_dob='2016-08-09')
     header.subject_id.name = 'Ramiro'
 
-    header.signals = [Signal('EEG1'), Signal('EEG2')]
-
-    #
-
-    #
-    # fname = "foofile.edf"
-    #
-    # edf = EdfWriter(fname, subject_id, recording_id, signals,
-    #                 saving_period_s=5, date_time=None)
-    #
-    # a = np.arange(1000).astype('int16')
-    # b = a + 10000
-    #
-    # edf.write_data_record(np.r_[a, b])
-    # edf.close()
+    header.signals = [EdfSignal('EEG1'), EdfSignal('EEG2')]
