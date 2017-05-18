@@ -419,7 +419,6 @@ class EdfSignal(object):
     def number_of_samples_in_data_record(self, value):
         self._number_of_samples_in_data_record = int(value)
 
-
     @property
     def reserved(self):
         return self._reserved
@@ -735,22 +734,22 @@ class EdfHeader:
         self.number_of_signals = len(values)
         self.number_of_bytes_in_header = (
                 256 + (self.number_of_signals * 256))
-        nsamples = 0
-        for signal in values:
-            # This condition is expected to occur when the signal header
-            # is read from a file. In this case sampling_freq will be 0
-            # because it is not part of the EDF specification, but the
-            # the header will contain the info needed to calculate it.
-            if ((signal.number_of_samples_in_data_record > 0) and
-                (self.duration_of_data_record > 0) and
-                (signal.sampling_freq == 0)):
-                signal.sampling_freq = (
-                        signal.number_of_samples_in_data_record /
-                        self.duration_of_data_record)
-            nsamples += signal.number_of_samples_in_data_record
-        # header.number_of_samples_in_data_record is not part of the
-        # EDF specification but it is handy to have.
-        self.number_of_samples_in_data_record = nsamples
+        # nsamples = 0
+        # for signal in values:
+        #     # This condition is expected to occur when the signal header
+        #     # is read from a file. In this case sampling_freq will be 0
+        #     # because it is not part of the EDF specification, but the
+        #     # the header will contain the info needed to calculate it.
+        #     if ((signal.number_of_samples_in_data_record > 0) and
+        #         (self.duration_of_data_record > 0) and
+        #         (signal.sampling_freq == 0)):
+        #         signal.sampling_freq = (
+        #                 signal.number_of_samples_in_data_record /
+        #                 self.duration_of_data_record)
+        #     nsamples += signal.number_of_samples_in_data_record
+        # # header.number_of_samples_in_data_record is not part of the
+        # # EDF specification but it is handy to have.
+        # self.number_of_samples_in_data_record = nsamples
         self._signals = values
 
 

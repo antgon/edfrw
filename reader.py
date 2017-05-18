@@ -21,18 +21,18 @@ with edfrw. If not, see <http://www.gnu.org/licenses/>.
 import struct
 import numpy as np
 
-from .headers import (EdfHeader, EdfSignal)
+from edfrw.headers import (EdfHeader, EdfSignal)
 
 
 def header_fromfile(filename):
     # String that represents the first 256 bytes in the header in the
     # format required by struct.unpack
     hdr_fmt = '<'
-    for size in Header._sizes:
+    for size in EdfHeader._sizes:
         hdr_fmt += '{}s'.format(size)
 
     # Main header (first 256 characters in EDF file)
-    header = Header()
+    header = EdfHeader()
     with open(filename, 'rb') as edffile:
         edffile.seek(0)
         hdr_str = edffile.read(256)
@@ -42,7 +42,7 @@ def header_fromfile(filename):
         # Convert from bytes to str
         hdr_str = [field.decode('ascii') for field in hdr_str]
         # update Header with the new values
-        for (field, value) in zip(Header._fields, hdr_str):
+        for (field, value) in zip(EdfHeader._fields, hdr_str):
             setattr(header, field, value)
 
         # Signal header.
@@ -55,7 +55,7 @@ def header_fromfile(filename):
         edffile.seek(256)
         sig_str = edffile.read(256 * header.number_of_signals)
 
-    sig_sizes = np.array(Signal._sizes).repeat(
+    sig_sizes = np.array(EdfSignal._sizes).repeat(
             header.number_of_signals)
     # String that represents bytes in the header that contain signal
     # information (as required by struct.unpack)
@@ -66,12 +66,23 @@ def header_fromfile(filename):
 
     signals = []
     for n in range(header.number_of_signals):
-        new_signal = Signal()
+        new_signal = EdfSignal()
         new_signal_str = sig_str[n::header.number_of_signals]
-        for index, field in enumerate(Signal._fields):
+        for index, field in enumerate(EdfSignal._fields):
             value = new_signal_str[index].decode('ascii')
             setattr(new_signal, field, value)
+        # The EdfSignal attribute 'sampling_freq' is not part of the EDF
+        # specification but it is useful, so it is added.
+        new_signal.sampling_freq = (
+                new_signal.number_of_samples_in_data_record /
+                header.duration_of_data_record)
         signals.append(new_signal)
+
+    # EdfHeader.number_of_samples_in_data_record is not part of the EDF
+    # specification but it is useful to have.
+    nsamples = [signal.number_of_samples_in_data_record for signal in
+                signals]
+    header.number_of_samples_in_data_record = np.sum(nsamples)
 
     header.signals = signals
     return header
