@@ -19,7 +19,13 @@ You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+
 class EdfWriter(object):
+
+    # Size and position in the header of number_of_data_records (nr)
+    _nr_size = 8
+    _nr_pos = 236
+
     def __init__(self, filename, header):
         '''
         *filename* <str>
@@ -81,12 +87,39 @@ class EdfWriter(object):
                self.header.number_of_samples_in_data_record)
         self._f.write(buffer)
         self.header.number_of_data_records += 1
+        # It's a good idea to update the number of data records in the
+        # header every time data are added to the file; that way,
+        # if something goes wrong during acquisition, at least the
+        # data already saved will be useful.
+        self.update_number_of_records()
+
+    def update_number_of_records(self):
+        """
+        Writes to the header the most recent value of
+        'number_of_data_records' (referred to as 'nr' in the EDF
+        specification).
+
+        By definition, this value is 8-bits long and it starts at
+        position 236 in the header.
+        """
+        # Keep a reference to the current pointer in the file.
+        current_pointer = self._f.tell()
+        # Pack the number_of_data_records into bytes of the right size.
+        nr = '{:{}}'.format(
+                self.header.number_of_data_records, self._nr_size)
+        nr = nr.encode()
+        # Move pointer to the position in header and write value.
+        self._f.seek(self._nr_pos)
+        self._f.write(nr)
+        # Return to the original position in the file.
+        self._f.seek(current_pointer)
 
     def flush(self):
         self._f.flush()
 
     def close(self):
-        self.write_header()
+        #self.write_header()
+        self.update_number_of_records()
         self.flush()
         self._f.close()
 
