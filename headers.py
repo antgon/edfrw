@@ -553,38 +553,38 @@ class EdfHeader:
         # easy to conatenate headr signals, but instead we have to
         # loop each field.
         sig_hdr = ''
-        for field in Signal._fields:
+        for field in EdfSignal._fields:
             for signal in self.signals:
                 if field == 'label':
                     val = signal.label
-                    size = Signal._sizes[Signal.LABEL]
+                    size = EdfSignal._sizes[EdfSignal.LABEL]
                 elif field == 'transducer_type':
                     val = signal.transducer_type
-                    size = Signal._sizes[Signal.TRANSDUCER_TYPE]
+                    size = EdfSignal._sizes[EdfSignal.TRANSDUCER_TYPE]
                 elif field == 'physical_dim':
                     val = signal.physical_dim
-                    size = Signal._sizes[Signal.PHYSICAL_DIM]
+                    size = EdfSignal._sizes[EdfSignal.PHYSICAL_DIM]
                 elif field == 'physical_min':
                     val = signal.physical_min
-                    size = Signal._sizes[Signal.PHYSICAL_MIN]
+                    size = EdfSignal._sizes[EdfSignal.PHYSICAL_MIN]
                 elif field == 'physical_max':
                     val = signal.physical_max
-                    size = Signal._sizes[Signal.PHYSICAL_MAX]
+                    size = EdfSignal._sizes[EdfSignal.PHYSICAL_MAX]
                 elif field == 'digital_min':
                     val = signal.digital_min
-                    size = Signal._sizes[Signal.DIGITAL_MIN]
+                    size = EdfSignal._sizes[EdfSignal.DIGITAL_MIN]
                 elif field == 'digital_max':
                     val = signal.digital_max
-                    size = Signal._sizes[Signal.DIGITAL_MAX]
+                    size = EdfSignal._sizes[EdfSignal.DIGITAL_MAX]
                 elif field == 'prefiltering':
                     val = signal.prefiltering
-                    size = Signal._sizes[Signal.PREFILTERING]
+                    size = EdfSignal._sizes[EdfSignal.PREFILTERING]
                 elif field == 'number_of_samples_in_data_record':
                     val = signal.number_of_samples_in_data_record
-                    size = Signal._sizes[Signal.NSAMPLES]
+                    size = EdfSignal._sizes[EdfSignal.NSAMPLES]
                 elif field == 'reserved':
                     val = signal._reserved
-                    size = Signal._sizes[Signal.RESERVED]
+                    size = EdfSignal._sizes[EdfSignal.RESERVED]
                 fmt = '{:<' + str(size) + '}'
                 val = fmt.format(val)
                 sig_hdr += val
@@ -737,12 +737,16 @@ class EdfHeader:
                 256 + (self.number_of_signals * 256))
         nsamples = 0
         for signal in values:
-            try:
+            # This condition is expected to occur when the signal header
+            # is read from a file. In this case sampling_freq will be 0
+            # because it is not part of the EDF specification, but the
+            # the header will contain the info needed to calculate it.
+            if ((signal.number_of_samples_in_data_record > 0) and
+                (self.duration_of_data_record > 0) and
+                (signal.sampling_freq == 0)):
                 signal.sampling_freq = (
                         signal.number_of_samples_in_data_record /
                         self.duration_of_data_record)
-            except ZeroDivisionError:
-                signal.sampling_freq = None
             nsamples += signal.number_of_samples_in_data_record
         # header.number_of_samples_in_data_record is not part of the
         # EDF specification but it is handy to have.
