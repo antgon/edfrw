@@ -39,8 +39,8 @@ class EdfWriter(object):
             if a 1s data record exceeds this size limit, the duration is
             recommended to be smaller than 1s (e.g. 0.01)."
         '''
-        self.fname = filename
-        self._f = open(fname, 'wb')
+        self.filename = filename
+        self._f = open(self.filename, 'wb')
         self.header = header
         self.write_header()
 
