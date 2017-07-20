@@ -482,8 +482,7 @@ class EdfHeader:
                  '_startdate', '_starttime',
                  '_number_of_bytes_in_header', 'reserved',
                  '_number_of_data_records', '_duration_of_data_record',
-                 '_number_of_signals', '_signals',
-                 'number_of_samples_in_data_record']
+                 '_number_of_signals', '_signals']
 
     def __init__(self, subject_code='', subject_sex='', subject_dob='',
                  subject_name='', experiment_id='', investigator_id='',
@@ -513,14 +512,14 @@ class EdfHeader:
                                          investigator_id,
                                          equipment_code)
         self.reserved = reserved
-        # number_of_data_records is a counter so it is important
-        # to initialise to 0
-        self.number_of_data_records = 0
+
+        # From the EDF+ specs: "The 'number of data records' can only be
+        # -1 during recording. As soon as the file is closed, the
+        # correct number is known and must be entered."
+        self.number_of_data_records = -1
+
         self.duration_of_data_record = duration_of_data_record
         self.signals = signals
-
-        # This attribute is not part of the EDF specification.
-        self.number_of_samples_in_data_record = 0
 
     def pack(self):
         """
@@ -551,8 +550,8 @@ class EdfHeader:
         # The signals part of the EDF header expects each field for all
         # signals instead of all fields of one signal then all field of
         # the next signl, etc. This is annoying, because it would be
-        # easy to conatenate headr signals, but instead we have to
-        # loop each field.
+        # easy to conatenate header signals, but instead we have to
+        # loop along each field.
         sig_hdr = ''
         for field in EdfSignal._fields:
             for signal in self.signals:
@@ -730,36 +729,12 @@ class EdfHeader:
 
     @signals.setter
     def signals(self, values):
-        # Several values in the header depend on the number of signals.
+        # Some values in the header depend on the number of signals.
         # Thus, these values must be updated whenever the signals list
         # changes.
         self.number_of_signals = len(values)
         self.number_of_bytes_in_header = (
                 256 + (self.number_of_signals * 256))
-        # nsamples = 0
-        # for signal in values:
-        #     # This condition is expected to occur when the signal header
-        #     # is read from a file. In this case sampling_freq will be 0
-        #     # because it is not part of the EDF specification, but the
-        #     # the header will contain the info needed to calculate it.
-        #     if ((signal.number_of_samples_in_data_record > 0) and
-        #         (self.duration_of_data_record > 0) and
-        #         (signal.sampling_freq == 0)):
-        #         signal.sampling_freq = (
-        #                 signal.number_of_samples_in_data_record /
-        #                 self.duration_of_data_record)
-        #     nsamples += signal.number_of_samples_in_data_record
-        # # header.number_of_samples_in_data_record is not part of the
-        # # EDF specification but it is handy to have.
-        # self.number_of_samples_in_data_record = nsamples
-
-        # number_of_samples_in_data_record is not part of the EDF
-        # specification but it is useful to have.
-        nsamples = 0
-        for signal in values:
-            nsamples += signal.number_of_samples_in_data_record
-        self.number_of_samples_in_data_record = nsamples
-
         self._signals = values
 
 
