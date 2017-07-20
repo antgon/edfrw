@@ -26,7 +26,7 @@ class EdfWriter(object):
     _nr_size = 8
     _nr_pos = 236
 
-    def __init__(self, filename, header):
+    def __init__(self, filename, header, saving_period_s):
         '''
         *filename* <str>
             EDF file name.
@@ -48,6 +48,13 @@ class EdfWriter(object):
         self.filename = filename
         self._f = open(self.filename, 'wb')
         self.header = header
+        self.header.duration_of_data_record = saving_period_s
+        # *number_of_data_records* is used as a counter in the function
+        # *write_data_record*, so it is important to initialise to 0.
+        self.header.number_of_data_records = 0
+        for signal in self.header.signals:
+            signal.number_of_samples_in_data_record = (
+                    signal.sampling_freq * saving_period_s)
         self.write_header()
 
     def write_header(self):
@@ -83,8 +90,8 @@ class EdfWriter(object):
             signal_0.samples[sig_0_number_of_samples_in_data_record]
             signal_1.samples[sig_1_number_of_samples_in_data_record]
         '''
-        assert(len(buffer) ==
-               self.header.number_of_samples_in_data_record)
+        # assert(len(buffer) ==
+        #        self.header.number_of_samples_in_data_record)
         self._f.write(buffer)
         self.header.number_of_data_records += 1
         # It's a good idea to update the number of data records in the
@@ -105,7 +112,7 @@ class EdfWriter(object):
         # Keep a reference to the current pointer in the file.
         current_pointer = self._f.tell()
         # Pack the number_of_data_records into bytes of the right size.
-        nr = '{:{}}'.format(
+        nr = '{:<{}}'.format(
                 self.header.number_of_data_records, self._nr_size)
         nr = nr.encode()
         # Move pointer to the position in header and write value.

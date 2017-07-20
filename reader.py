@@ -104,14 +104,14 @@ class EdfReader(object):
                    str(rec_number))
             print(msg)
             return
-        pointer = (
-                (rec_number *
-                 self.header.number_of_samples_in_data_record) +
-                self.header.number_of_bytes_in_header)
+        # pointer = (
+        #         (rec_number *
+        #          self.header.number_of_samples_in_data_record) +
+        #         self.header.number_of_bytes_in_header)
         self._f.seek(pointer)
         # Data are saved as int16, so the number of bytes to read is
         # twice the number of samles requested.
-        nsamples = self.header.number_of_samples_in_data_record * 2
+        #nsamples = self.header.number_of_samples_in_data_record * 2
         samples = self._f.read(nsamples)
         samples = np.frombuffer(samples, 'int16')
         return samples
@@ -123,12 +123,3 @@ class EdfReader(object):
 if __name__ == "__main__":
     edf = EdfReader('../daq/data/SC4181E0-PSG.edf')
     edf.header.print()
-
-    names = [signal.label for signal in edf.header.signals]
-    sizes = [signal.number_of_samples_in_data_record for signal
-             in edf.header.signals]
-    # int16 char is h' or '<i2'
-    offsets = [(np.int16, size*2) for size in sizes]
-
-
-    #with edf
