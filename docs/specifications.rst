@@ -187,7 +187,7 @@ by change in *x*::
 and if the slope *m* and the intercept *b* are known, then the line can
 be described by::
 
-    y = m * x + b
+    y = m * (x + b)
 
 It can be seen that the raw int16 data values stored in an EDF file
 correspond to *x* in that equation, that the physical values that we are
@@ -202,9 +202,9 @@ The slope can be calculated as::
 and the offset (or intercept) *b* will be the physical_min value. From
 these the physical values can be obtained using  the line equation::
 
-    b = offset = physical_min
-    y = m * x + b
-    physical_value = (m * digital_value) + b
+    b = offset = physical_max / m - digital_max
+    y = m * (x + b)
+    physical_value = m * (digital_value) + b)
 
 Example 1.
     An EDF file contains data obtained after measuring voltage with the
@@ -229,10 +229,10 @@ Example 1.
 
     and with that the physical values (voltage)::
 
-        physical_value = (m * digital_value) + physical_min
-        physical_value = (0.0008 * digital_value) + 0
+        physical_value = m * (digital_value + physical_min)
+        physical_value = 0.0008 * (digital_value + 0)
 
-    A digital value of 2048 will represent (0.0008 * 2048) + 0 = 1.65
+    A digital value of 2048 will represent 0.0008 * (2048 + 0) = 1.65
     volts, as expected.
 
 Example 2.
@@ -255,6 +255,6 @@ Example 2.
         m = (physical_max - physical_min) / (digital_max - digital_min)
         m = (2.952 + 2.048) / (16383 - 0)
         m = 5 / 16383 = 0.00031
-        b = offset = physical_min = -2.048
+        b = offset = physical_max / m - digital_max = -6860.41935483871
         y = m * x + b
-        physical_value = (0.00031 * digital_value) - 2.048
+        physical_value = 0.00031 * (digital_value + -6860.41935483871)
