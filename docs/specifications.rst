@@ -228,14 +228,14 @@ Example 1.
         m = 0.0008
         b = physical_max / m - digital_max
         b = 3.3 / 0.0008 - 4095
-        b = 30.0
+        b = 0.5
         
     and with that the physical values (voltage)::
 
         physical_value = m * (digital_value + b)
-        physical_value = 0.0008 * (digital_value + 30.0)
+        physical_value = 0.0008 * (digital_value + 0.5)
 
-    A digital value of 2048 will represent 0.0008 * (2048 + 0) = 1.66
+    A digital value of 2048 will represent 0.0008 * (2048 + 0) = 1.65
     volts, as expected.
 
 Example 2.
@@ -258,6 +258,6 @@ Example 2.
         m = (physical_max - physical_min) / (digital_max - digital_min)
         m = (2.952 + 2.048) / (16383 - 0)
         m = 5 / 16383 = 0.00031
-        b = offset = physical_max / m - digital_max = -6860.41935483871
+        b = offset = physical_max / m - digital_max = -23093.4768
         y = m * x + b
-        physical_value = 0.00031 * (digital_value + -6860.41935483871)
+        physical_value = 0.00031 * (digital_value + -23093.4768)
