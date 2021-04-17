@@ -451,11 +451,14 @@ class EdfSignal(object):
         dimension has been defined the digital value is returned without
         modification.
 
-        Follows the equation of a straight line:
-            y = mx + b
+        Follows the equation of a straight line (point-slope form):
+
+            y = m * (x - x1) + y1
+
         """
         if self.physical_dim:
-            return (self.gain * sample) + self.physical_min
+            return (self.gain * (sample - self.digital_max)
+                    + self.physical_max)
         else:
             return sample
 
