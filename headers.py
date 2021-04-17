@@ -461,6 +461,18 @@ class EdfSignal(object):
                     + self.physical_max)
         else:
             return sample
+    
+    def phys_to_dig(self, value):
+        """
+        Convert a physical value to a digital value.
+
+        Follows the equation of a straight line (point-slope form):
+
+            y = m * (x - x1) + y1
+
+            x = (y - y1)/m + x1
+        """
+        return (value - self.physical_max)/self.gain + self.digital_max
 
     def print(self):
         fields = list(self._fields)
