@@ -472,7 +472,8 @@ class EdfSignal(object):
 
             x = (y - y1)/m + x1
         """
-        return (value - self.physical_max)/self.gain + self.digital_max
+        dig = (value - self.physical_max)/self.gain + self.digital_max
+        return dig.astype('int16')
 
     def print(self):
         fields = list(self._fields)
