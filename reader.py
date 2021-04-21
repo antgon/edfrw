@@ -101,12 +101,15 @@ class EdfReader(object):
         self.calc_filesize = (self.header.number_of_data_records
                               * self._block_size
                               + self.header.number_of_bytes_in_header)
+
         # Actual file size
         self.filesize = self._f.seek(0, 2)
 
-        # Note that EDFbrowser does not load files when these two values
-        # mismatch but it is still possible to read and thus rescue
-        # such file with such 'corrupted' headers.
+        # Note that EDFbrowser does not load files when the calculated
+        # and the actual filesize values do not match but it is still
+        # possible to read and thus rescue files with such 'corrupted'
+        # headers just by reading as many block as there are in the file
+        # (regardless of the number of blocks reported in the header).
 
     def open(self):
         self._f = open(self.filename, mode='rb')
