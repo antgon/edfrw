@@ -84,7 +84,7 @@ def header_fromfile(filename):
 
 class EdfReader(object):
     def __init__(self, filename):
-        self.header = reader.header_fromfile(filename)
+        self.header = header_fromfile(filename)
         self.filename = filename
         self.open()
         self._block_size = 0
