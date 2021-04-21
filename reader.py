@@ -84,42 +84,58 @@ def header_fromfile(filename):
 
 class EdfReader(object):
     def __init__(self, filename):
-        self.header = header_fromfile(filename)
+        self.header = reader.header_fromfile(filename)
         self.filename = filename
         self.open()
+        self._block_size = 0
+        self._sampling_interval = []
+        for signal in self.header.signals:
+            self._block_size += signal.number_of_samples_in_data_record
+            self._sampling_interval.append(1/signal.sampling_freq)
+
+        # EDF data are saved as int16 so the size (in bytes) of the
+        # block is twice the number of samples
+        self._block_size *= 2
+
+        # File size according to header
+        self.calc_filesize = (self.header.number_of_data_records
+                              * self._block_size
+                              + self.header.number_of_bytes_in_header)
+        # Actual file size
+        self.filesize = self._f.seek(0, 2)
+
+        # Note that EDFbrowser does not load files when these two values
+        # mismatch but it is still possible to read and thus rescue
+        # such file with such 'corrupted' headers.
 
     def open(self):
-        self._f = open(self.filename, mode = 'rb')
+        self._f = open(self.filename, mode='rb')
 
     def read_record(self, rec_number):
-        # TODO This function is still incomplete
-        """
-        Returns data from record *rec_number*.
-        """
-        if rec_number > self.header.number_of_data_records:
-            msg = ('There are ' +
-                   str(self.header.number_of_data_records) +
-                   ' data records ' +
-                   '(you requested record ' +
-                   str(rec_number))
-            print(msg)
-            return
-        # pointer = (
-        #         (rec_number *
-        #          self.header.number_of_samples_in_data_record) +
-        #         self.header.number_of_bytes_in_header)
-        self._f.seek(pointer)
-        # Data are saved as int16, so the number of bytes to read is
-        # twice the number of samles requested.
-        #nsamples = self.header.number_of_samples_in_data_record * 2
-        samples = self._f.read(nsamples)
-        samples = np.frombuffer(samples, 'int16')
-        return samples
+        start = (self.header.number_of_bytes_in_header
+                 + (self._block_size * rec_number))
+        self._f.seek(start, 0)
+        y = self._f.read(self._block_size)
+        y = np.frombuffer(y, 'int16')
+        tstart = self.header.duration_of_data_record * rec_number
+
+        if self._f.tell() > self.filesize:
+            raise IOError("Attempted reading beyond end of file")
+
+        # FIXME: the following lines will only work if all signals were
+        # sampled at the same rate and thus there are the same number of
+        # samples per block per signal.
+        y = y.reshape(self.header.number_of_signals, -1)
+
+        # These lines calculate time in seconds. I am not sure if this
+        # is the right place for this -- it will create potentially
+        # large arrays of data that may be not always are needed.
+        # x = np.ones_like(y)
+        # x *= np.arange(y.shape[1]).reshape(1, -1)
+        # x = x * np.array(self._sampling_interval).reshape(2,-1)
+        # x += tstart
+
+        return y
 
     def close(self):
         self._f.close()
-
-
-if __name__ == "__main__":
-    edf = EdfReader('../daq/data/SC4181E0-PSG.edf')
-    edf.header.print()
