@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # coding=utf-8
-'''
-Copyright 2017 Antonio González
+"""
+Copyright 2017-2021 Antonio González
 
 This file is part of edfrw.
 
@@ -17,7 +17,7 @@ for more details.
 
 You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
-'''
+"""
 import struct
 import numpy as np
 
@@ -25,6 +25,18 @@ from edfrw import (EdfHeader, EdfSignal)
 
 
 def header_fromfile(filename):
+    """
+    Reads the header from an EDF file.
+
+    Parameters
+    ----------
+    filename : str
+        Path to the EDF file
+
+    Returns
+    -------
+    header : object of `class::EdfHeader`
+    """
     # String that represents the first 256 bytes in the header in the
     # format required by struct.unpack
     hdr_fmt = '<'
@@ -43,6 +55,12 @@ def header_fromfile(filename):
         hdr_str = [field.decode('ascii') for field in hdr_str]
         # update Header with the new values
         for (field, value) in zip(EdfHeader._fields, hdr_str):
+            # `EdfHeader.number_of_signals` is a read-only attribute.
+            # A trailing underscore is required to be able to set this
+            # value.
+            if field == 'number_of_signals':
+                field = '_number_of_signals'
+                value = int(value)
             setattr(header, field, value)
 
         # Signal header.
@@ -56,7 +74,7 @@ def header_fromfile(filename):
         sig_str = edffile.read(256 * header.number_of_signals)
 
     sig_sizes = np.array(EdfSignal._sizes).repeat(
-            header.number_of_signals)
+        header.number_of_signals)
     # String that represents bytes in the header that contain signal
     # information (as required by struct.unpack)
     sig_fmt = '<'
@@ -74,8 +92,8 @@ def header_fromfile(filename):
         # The EdfSignal attribute 'sampling_freq' is not part of the EDF
         # specification but it is useful, so it is added.
         new_signal.sampling_freq = (
-                new_signal.number_of_samples_in_data_record /
-                header.duration_of_data_record)
+            new_signal.number_of_samples_in_data_record /
+            header.duration_of_data_record)
         signals.append(new_signal)
 
     header.signals = signals
@@ -84,9 +102,17 @@ def header_fromfile(filename):
 
 class EdfReader(object):
     def __init__(self, filename):
+        """
+        Open an EDF file for reading data
+
+        Parameters
+        ----------
+        filename : str
+            Path to the EDF file
+        """
         self.header = header_fromfile(filename)
         self.filename = filename
-        self.open()
+        self._open()
         self._block_size = 0
         self._sampling_interval = []
         for signal in self.header.signals:
@@ -111,34 +137,43 @@ class EdfReader(object):
         # headers just by reading as many block as there are in the file
         # (regardless of the number of blocks reported in the header).
 
-    def open(self):
+    def _open(self):
         self._f = open(self.filename, mode='rb')
 
     def read_record(self, rec_number):
-        start = (self.header.number_of_bytes_in_header
-                 + (self._block_size * rec_number))
-        self._f.seek(start, 0)
-        y = self._f.read(self._block_size)
-        y = np.frombuffer(y, 'int16')
-        tstart = self.header.duration_of_data_record * rec_number
+        """
+        Returns data from one record.
 
-        if self._f.tell() > self.filesize:
-            raise IOError("Attempted reading beyond end of file")
+        Parameters
+        ----------
+        rec_number : integer
+            Record number to read data from
 
-        # FIXME: the following lines will only work if all signals were
-        # sampled at the same rate and thus there are the same number of
-        # samples per block per signal.
-        y = y.reshape(self.header.number_of_signals, -1)
-
-        # These lines calculate time in seconds. I am not sure if this
-        # is the right place for this -- it will create potentially
-        # large arrays of data that may be not always are needed.
-        # x = np.ones_like(y)
-        # x *= np.arange(y.shape[1]).reshape(1, -1)
-        # x = x * np.array(self._sampling_interval).reshape(2,-1)
-        # x += tstart
-
-        return y
+        TODO This function is still incomplete
+        """
+        if rec_number > self.header.number_of_data_records:
+            msg = (f'You requested record {rec_number} but there are' +
+                   f' only {self.header.number_of_data_records}' +
+                   ' records.')
+            print(msg)
+            return
+        # pointer = (
+        #         (rec_number *
+        #          self.header.number_of_samples_in_data_record) +
+        #         self.header.number_of_bytes_in_header)
+        self._f.seek(pointer)
+        # Data are saved as int16, so the number of bytes to read is
+        # twice the number of samles requested.
+        #nsamples = self.header.number_of_samples_in_data_record * 2
+        samples = self._f.read(nsamples)
+        samples = np.frombuffer(samples, 'int16')
+        return samples
 
     def close(self):
         self._f.close()
+
+
+if __name__ == "__main__":
+    filename = '../daq/data/SC4181E0-PSG.edf'
+    edf = EdfReader(filename)
+    edf.header.print()

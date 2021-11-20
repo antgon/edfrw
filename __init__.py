@@ -31,6 +31,6 @@ from .reader import EdfReader
 # Convenience function to read or write an EDF file.
 def open_edf(filename, mode='r'):
     if mode == 'r':
-        return(EdfReader(fname))
+        return(EdfReader(filename))
     elif mode == 'w':
-        return(EdfWriter(fname))
+        return(EdfWriter(filename))

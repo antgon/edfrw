@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # coding=utf-8
-'''
-Copyright 2017 Antonio González
+"""
+Copyright 2017-2021 Antonio González
 
 This file is part of edfrw.
 
@@ -17,7 +17,7 @@ for more details.
 
 You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
-'''
+"""
 
 
 class EdfWriter(object):
@@ -27,14 +27,16 @@ class EdfWriter(object):
     _nr_pos = 236
 
     def __init__(self, filename, header, saving_period_s):
-        '''
-        *filename* <str>
+        """
+        Create and open and EDF file for writing
+
+        Parameters
+        ----------
+        filename : str
             EDF file name.
-
-        *header*
-            An instance of `headers.Header`.
-
-        *saving_period_s* <int>
+        header : instance of `headers.Header`
+            The file header.
+        saving_period_s : integer
             How often (in seconds) will the data be saved to disk? This
             value sets EDF header's `duration_of_data_record`, which is
             the duration in seconds of one data record.
@@ -44,7 +46,7 @@ class EdfWriter(object):
             (number of bytes) is recommended not to exceed 61440. Only
             if a 1s data record exceeds this size limit, the duration is
             recommended to be smaller than 1s (e.g. 0.01)."
-        '''
+        """
         self.filename = filename
         self._f = open(self.filename, 'wb')
         self.header = header
@@ -54,10 +56,13 @@ class EdfWriter(object):
         self.header.number_of_data_records = 0
         for signal in self.header.signals:
             signal.number_of_samples_in_data_record = (
-                    signal.sampling_freq * saving_period_s)
+                signal.sampling_freq * saving_period_s)
         self.write_header()
 
     def write_header(self):
+        """
+        Write the EDF header
+        """
         # pack the header
         hdr = self.header.pack()
         # keep a reference to the current pointer
@@ -71,25 +76,36 @@ class EdfWriter(object):
             self._f.seek(pointer)
 
     def write_data_record(self, buffer):
-        '''
+        """
+        Write one data record.
+
+        Parameters
+        ----------
+        buffer : uint16
+            The data to be save to disk. It must be an unsigned 16-bit
+            integer, two-complement values, as required by the EDF file
+            format specification.
+
+        Notes
+        -----
         Signals are allowed to be acquired at different sampling rates.
         The data are saved in data blocks (named 'data records' in the
         specification). The total number of samples in the block is thus
-        determined by adding the sizes of the individiual signals
+        determined by adding the sizes of the individual signals
         (`signal.number_of_samples_in_data_record`).
 
-        Each data block holds all data aquired during a time interval of
-        `header.duration_of_data_record` seconds, and the total number
-        of data records in the file are `header.number_of_data_records`.
+        Each data block holds all data acquired during a time interval
+        of `header.duration_of_data_record` seconds, and the total
+        number of data records in the file are
+        `header.number_of_data_records`.
 
         Thus, to write a data block (data record), the data must be
         the concatenation of samples acquired during the period of time
         `duration_of_data_record` first all samples from signal 0, then
-        signal 1, etc.
-
+        signal 1, etc:
             signal_0.samples[sig_0_number_of_samples_in_data_record]
             signal_1.samples[sig_1_number_of_samples_in_data_record]
-        '''
+        """
         # assert(len(buffer) ==
         #        self.header.number_of_samples_in_data_record)
         self._f.write(buffer)
@@ -113,7 +129,7 @@ class EdfWriter(object):
         current_pointer = self._f.tell()
         # Pack the number_of_data_records into bytes of the right size.
         nr = '{:<{}}'.format(
-                self.header.number_of_data_records, self._nr_size)
+            self.header.number_of_data_records, self._nr_size)
         nr = nr.encode()
         # Move pointer to the position in header and write value.
         self._f.seek(self._nr_pos)
@@ -125,7 +141,9 @@ class EdfWriter(object):
         self._f.flush()
 
     def close(self):
-        #self.write_header()
+        """
+        Close the EDF file
+        """
         self.update_number_of_records()
         self.flush()
         self._f.close()
