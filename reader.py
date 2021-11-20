@@ -32,7 +32,7 @@ def header_fromfile(filename):
     ----------
     filename : str
         Path to the EDF file
-    
+
     Returns
     -------
     header : object of `class::EdfHeader`
@@ -55,6 +55,12 @@ def header_fromfile(filename):
         hdr_str = [field.decode('ascii') for field in hdr_str]
         # update Header with the new values
         for (field, value) in zip(EdfHeader._fields, hdr_str):
+            # `EdfHeader.number_of_signals` is a read-only attribute.
+            # A trailing underscore is required to be able to set this
+            # value.
+            if field == 'number_of_signals':
+                field = '_number_of_signals'
+                value = int(value)
             setattr(header, field, value)
 
         # Signal header.
@@ -113,7 +119,7 @@ class EdfReader(object):
 
     def read_record(self, rec_number):
         """
-        Returns data from record *rec_number*.
+        Returns data from one record.
 
         Parameters
         ----------
@@ -124,7 +130,8 @@ class EdfReader(object):
         """
         if rec_number > self.header.number_of_data_records:
             msg = (f'You requested record {rec_number} but there are' +
-                f' only {self.header.number_of_data_records}.')
+                   f' only {self.header.number_of_data_records}' +
+                   ' records.')
             print(msg)
             return
         # pointer = (
@@ -144,5 +151,6 @@ class EdfReader(object):
 
 
 if __name__ == "__main__":
-    edf = EdfReader('../daq/data/SC4181E0-PSG.edf')
+    filename = '../daq/data/SC4181E0-PSG.edf'
+    edf = EdfReader(filename)
     edf.header.print()
