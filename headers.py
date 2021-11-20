@@ -34,14 +34,32 @@ class EdfHeaderException(Exception):
 
 
 class EdfSubjectId:
-    """
+    """Subject (patient) identification.
+
     The subject (patient) identification is a string (80 characters
     long) in the header of a EDF file than contains information about
     the patient's code, name, sex, and date of birth.
 
     This class handles that information. It is seldom useful on its own
     but rather as an attribute of `class::Header`.
+
+    Attributes
+    ----------
+    code : str
+        Patient code
+    sex : str
+        Patient sex
+    dob: datetime.date
+        Patient date of birth
+    name : str
+        Patient name
+    
+    Methods
+    -------
+    to_str()
+        Return attributes as single string, as required by EDF 
     """
+
     _len = 80
     __slots__ = ['_code', '_sex', '_dob', '_name']
 
@@ -104,6 +122,8 @@ class EdfSubjectId:
     @dob.setter
     def dob(self, dob):
         """
+        Date of birth.
+
         If DOB is not known it must be an empty string '' or 'X'. If it
         is known, it must be entered as
 
@@ -162,7 +182,8 @@ class EdfSubjectId:
 
 
 class EdfRecordingId:
-    """
+    """Recording identification.
+
     The 'local recording identification field' is a string of 80
     characters in the header of a EDF file. It contains information
     about the start date, experiment ID, investigator ID, and equipment
@@ -170,6 +191,18 @@ class EdfRecordingId:
 
     This class handles that information. It is seldom useful on its own
     but rather as an attribute of `class::Header`.
+
+    Attributes
+    ----------
+    equipment_code : str
+    experiment_id : str
+    investigator_id : str
+    startdate : datetime.date
+
+    Methods
+    -------
+    to_str()
+        Return attributes as a string, as per EDF format
     """
     _len = 80
     __slots__ = ['_startdate', '_experiment_id', '_investigator_id',
@@ -303,12 +336,33 @@ class EdfRecordingId:
 
 
 class EdfSignal(object):
-    """
-    Properties of a signal in an EDF file.
+    """Properties of a signal.
 
     These properties are stored in the header of an EDF file (after
     the first 256 bytes which contain the 'main' header). Each signal
-    header is 256 bytes long. 
+    header is 256 bytes long.
+
+    Attributes
+    ----------
+    digital_max : int
+    digital_min : int
+    label : str
+    number_of_samples_in_data_record : int
+    physical_dim : str
+    physical_max : number
+    physical_min : number
+    prefiltering : str
+    reserved : str
+    transducer_type : str
+
+    Methods
+    -------
+    dig_to_phys(value)
+        Convert a digital value to a physical value
+    phys_to_dig(value)
+        Convert a physical value to a digital value
+    print()
+        Display a summary of the signal
     """
 
     (LABEL, TRANSDUCER_TYPE, PHYSICAL_DIM, PHYSICAL_MIN, PHYSICAL_MAX,
@@ -575,8 +629,28 @@ class EdfSignal(object):
 
 
 class EdfHeader:
-    """
-    The header in a EDF file
+    """The header in a EDF file.
+
+    Attributes
+    ----------
+    duration_of_data_record : number
+    number_of_bytes_in_header : int
+    number_of_data_records : int
+    number_of_signals : int
+    recording_id : str
+    reserved : str
+    signals : list
+    startdate : datetime.date
+    starttime : datetime.time
+    subject_id : str
+    version : int, always 0
+
+    Methods
+    -------
+    pack()
+        Returns the header as a bytes object
+    print()
+        Print a summary of the header contents
     """
     # Fields and sizes (i.e. number of bytes) as per the EDF
     # specification.
@@ -620,7 +694,7 @@ class EdfHeader:
         reserved : str, default=''
             Must be an empty string if the file conforms to the EDF
             format, or 'EDF+C' or 'EDF+D' if the file includes an annotations signal (EDF+ format).
-        signals : list, default=[]
+        signals : list of EdfSignal objects, default=[]
             A list of objects of `class::Signal`        
         """
         self.version = '0' # Version is always 0.
@@ -769,12 +843,17 @@ class EdfHeader:
 
     @startdate.setter
     def startdate(self, value):
-        '''
-        Start date. It must be either
-        (a) a string 'yyyy-mm-dd', e.g. '2016-10-25', or
-        (b) a string 'd.m.y' as required by EDF, e.g. '16.10.25', or
-        (c) a datetime object.
-        '''
+        """
+        Start date.
+
+        Parameters
+        ----------
+        value : str or datetime
+            It must be either
+            (a) a string 'yyyy-mm-dd', e.g. '2016-10-25', or
+            (b) a string 'd.m.y' as required by EDF, e.g. '16.10.25', or
+            (c) a datetime object
+        """
         if type(value) is str:
             try:
                 value = dt.datetime.strptime(value, ISO_DATE_FMT)
@@ -854,6 +933,13 @@ class EdfHeader:
 
     @signals.setter
     def signals(self, values):
+        """
+        Signals in an EDF file
+
+        Parameters
+        ----------
+        values : list of EdfSignal        
+        """
         # Some values in the header depend on the number of signals.
         # Thus, these values must be updated whenever the signals list
         # changes.

@@ -21,6 +21,28 @@ with edfrw. If not, see <http://www.gnu.org/licenses/>.
 
 
 class EdfWriter(object):
+    """Open an EDF for writing
+
+    Attributes
+    ----------
+    filename : str
+    header : object of class EdfHeader
+    saving_period_s : int
+    closed : bool
+
+    Methods
+    -------
+    close()
+        Close the file
+    flush()
+        Flush data to disk
+    update_number_of_records()
+        Update the file header with current number of records
+    write_data_record(buffer)
+        Write a data record
+    write_header()
+        Write the EDF header
+    """
 
     # Size and position in the header of number_of_data_records (nr)
     _nr_size = 8
