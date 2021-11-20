@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # coding=utf-8
-'''
-Copyright 2017 Antonio González
+"""
+Copyright 2017-2021 Antonio González
 
 This file is part of edfrw.
 
@@ -17,7 +17,7 @@ for more details.
 
 You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
-'''
+"""
 import struct
 import numpy as np
 
@@ -25,6 +25,18 @@ from edfrw import (EdfHeader, EdfSignal)
 
 
 def header_fromfile(filename):
+    """
+    Reads the header from an EDF file.
+
+    Parameters
+    ----------
+    filename : str
+        Path to the EDF file
+    
+    Returns
+    -------
+    header : object of `class::EdfHeader`
+    """
     # String that represents the first 256 bytes in the header in the
     # format required by struct.unpack
     hdr_fmt = '<'
@@ -56,7 +68,7 @@ def header_fromfile(filename):
         sig_str = edffile.read(256 * header.number_of_signals)
 
     sig_sizes = np.array(EdfSignal._sizes).repeat(
-            header.number_of_signals)
+        header.number_of_signals)
     # String that represents bytes in the header that contain signal
     # information (as required by struct.unpack)
     sig_fmt = '<'
@@ -74,8 +86,8 @@ def header_fromfile(filename):
         # The EdfSignal attribute 'sampling_freq' is not part of the EDF
         # specification but it is useful, so it is added.
         new_signal.sampling_freq = (
-                new_signal.number_of_samples_in_data_record /
-                header.duration_of_data_record)
+            new_signal.number_of_samples_in_data_record /
+            header.duration_of_data_record)
         signals.append(new_signal)
 
     header.signals = signals
@@ -84,24 +96,35 @@ def header_fromfile(filename):
 
 class EdfReader(object):
     def __init__(self, filename):
+        """
+        Open an EDF file for reading data
+
+        Parameters
+        ----------
+        filename : str
+            Path to the EDF file
+        """
         self.header = header_fromfile(filename)
         self.filename = filename
-        self.open()
+        self._open()
 
-    def open(self):
-        self._f = open(self.filename, mode = 'rb')
+    def _open(self):
+        self._f = open(self.filename, mode='rb')
 
     def read_record(self, rec_number):
-        # TODO This function is still incomplete
         """
         Returns data from record *rec_number*.
+
+        Parameters
+        ----------
+        rec_number : integer
+            Record number to read data from
+
+        TODO This function is still incomplete
         """
         if rec_number > self.header.number_of_data_records:
-            msg = ('There are ' +
-                   str(self.header.number_of_data_records) +
-                   ' data records ' +
-                   '(you requested record ' +
-                   str(rec_number))
+            msg = (f'You requested record {rec_number} but there are' +
+                f' only {self.header.number_of_data_records}.')
             print(msg)
             return
         # pointer = (
