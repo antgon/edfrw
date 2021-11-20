@@ -843,11 +843,10 @@ class EdfHeader:
 
     @property
     def number_of_signals(self):
+        """
+        Number of signals in the EDF file. Read-only value.
+        """
         return self._number_of_signals
-
-    @number_of_signals.setter
-    def number_of_signals(self, value):
-        self._number_of_signals = int(value)
 
     @property
     def signals(self):
@@ -858,7 +857,7 @@ class EdfHeader:
         # Some values in the header depend on the number of signals.
         # Thus, these values must be updated whenever the signals list
         # changes.
-        self.number_of_signals = len(values)
+        self._number_of_signals = len(values)
         self.number_of_bytes_in_header = (
-                256 + (self.number_of_signals * 256))
+                256 + (self._number_of_signals * 256))
         self._signals = values
