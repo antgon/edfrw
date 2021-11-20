@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # coding=utf-8
-'''
-Copyright 2017 Antonio González
+"""
+Copyright 2017-2021 Antonio González
 
 This file is part of edfrw.
 
@@ -17,7 +17,7 @@ for more details.
 
 You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
-'''
+"""
 
 import struct
 import warnings
@@ -34,29 +34,38 @@ class EdfHeaderException(Exception):
 
 
 class EdfSubjectId:
-    '''
+    """
     The subject (patient) identification is a string (80 characters
     long) in the header of a EDF file than contains information about
     the patient's code, name, sex, and date of birth.
 
     This class handles that information. It is seldom useful on its own
     but rather as an attribute of `class::Header`.
-    '''
+    """
     _len = 80
     __slots__ = ['_code', '_sex', '_dob', '_name']
 
     def __init__(self, code='', sex='', dob='', name=''):
-        '''
+        """
         Properties that identify the subject.
 
-        `code` is the patient code
-        `sex` is 'M', 'F', or 'X'
-        `dob` is date of birth
-        `name` is the patient's name
-
-        If any field is not known it can be entered as 'X' (as per
+        Parameters
+        ----------
+        code : str, default=''
+            Patient code
+        sex : str, 'M', 'F', or 'X', default=''
+        dob : str or datetime, default=''
+            Date of birth. It must be entered as:
+            (a) a string in EDF format 'dd-MMM-yy', as in '30-DEC-1999';
+            (b) a string in iso format 'yyyy-mm-dd', as in
+            '1999-12-30'; or
+            (c) a datetime object.
+        name : str, default =''
+            The patient's name
+        
+        Any field that is not known can be entered as 'X' (as per the
         EDF standard) or as an empty string ''.
-        '''
+        """
         self.code = code
         self.sex = sex
         self.dob = dob
@@ -94,8 +103,8 @@ class EdfSubjectId:
 
     @dob.setter
     def dob(self, dob):
-        '''
-        If DOB is not known it must be an empy string '' or 'X'. If it
+        """
+        If DOB is not known it must be an empty string '' or 'X'. If it
         is known, it must be entered as
 
         (a) a string in EDF format 'dd-MMM-yy', as in '30-DEC-1999';
@@ -103,7 +112,7 @@ class EdfSubjectId:
         (c) a datetime object.
 
         In any case the date will be stored as a datetime.date object.
-        '''
+        """
         if (not dob) or (dob == 'X'):
             self._dob = 'X'
         elif isinstance(dob, dt.datetime):
@@ -153,21 +162,53 @@ class EdfSubjectId:
 
 
 class EdfRecordingId:
-    '''
-    The recording identification is a string of 80 characters in the
-    header of a EDF file. It contains information about the start date,
-    experiment ID, investigator ID, and equipment code, each of these
-    separated by a space.
+    """
+    The 'local recording identification field' is a string of 80
+    characters in the header of a EDF file. It contains information
+    about the start date, experiment ID, investigator ID, and equipment
+    code, each of these separated by a space.
 
     This class handles that information. It is seldom useful on its own
     but rather as an attribute of `class::Header`.
-    '''
+    """
     _len = 80
     __slots__ = ['_startdate', '_experiment_id', '_investigator_id',
                  '_equipment_code']
 
     def __init__(self, startdate=None, experiment_id='',
                  investigator_id='', equipment_code=''):
+        """
+        The 'local recording identification field'
+        
+        The recording identification field forms part of the EDF
+        header. All these subfields together will be concatenated
+        (separated by spaces) to form one string which must not exceed
+        80 characters. Note that the text 'Startdate' is always
+        prepended to this string, and this must betaken into account
+        for the character count.
+
+        Fields that are unknown (empty strings) will be replaced by an
+        'X' as per the EDF specification.
+
+        Parameters
+        ----------
+        startdate : str or datetime or None, default=None
+            The start date. Expected to be:
+            (a) a string in isoformat ('yyyy-mm-dd'), or
+            (b) a `datetime` instance, as in e.g. datetime.now(), or
+            (c) a date string with format '%d-%b-%Y', as in e.g.
+            '02-AUG-1951', which is the format required by EDF for this
+            field, or
+            (d) None, in which case the current date will be used
+        experiment_id : str, default=''
+            "The  hospital administration code of the investigation,
+            i.e. EEG number" (Kemp, 2003)
+        investigator_id : str, default=''
+            "A code identifying the responsible investigator" (Kemp,
+            2003)
+        equipment_code : str, default=''
+            "A code specifying the used equipment" (Kemp, 2003)
+        """
         self.startdate = startdate
         self.experiment_id = experiment_id
         self.investigator_id = investigator_id
@@ -267,16 +308,7 @@ class EdfSignal(object):
 
     These properties are stored in the header of an EDF file (after
     the first 256 bytes which contain the 'main' header). Each signal
-    header is 256 bytes long.
-
-    *physical_dim*
-        Physical dimension. A string that must start with a 'prefix'
-        (e.g. 'u' for 'micro') followed by the 'basic dimension' (e.g.
-        'V' for volts). Other examples of basic dimensions are  'K',
-        'degC' or 'degF' for temperature, and '%' for SaO2. Powers  are
-        denotes by '^', as in 'V^2/Hz'. An empty string represents an
-        uncalibrated signal. For standards on labels and units, see
-        http://www.edfplus.info/specs/edftexts.html
+    header is 256 bytes long. 
     """
 
     (LABEL, TRANSDUCER_TYPE, PHYSICAL_DIM, PHYSICAL_MIN, PHYSICAL_MAX,
@@ -291,9 +323,9 @@ class EdfSignal(object):
     # Byte size of each field
     _sizes = (16, 80,  8,  8,  8,  8,  8, 80,  8, 32)
 
-    # Slots are created by prepending an underscore to each field. Extra
-    # extra fields 'sampling_freq' and 'gain' (not part of the EDF
-    # specification) are added for convenience.
+    # Slots are created by prepending an underscore to each field. The
+    # fields 'sampling_freq' and 'gain' are not part of the EDF
+    # specification; they are added for convenience.
     __slots__ = ['_' + field for field in _fields]
     __slots__.append('sampling_freq')
     __slots__.append('gain')
@@ -302,11 +334,61 @@ class EdfSignal(object):
                  physical_min=-1, physical_max=1, digital_min=-32768,
                  digital_max=32767, prefiltering='',
                  number_of_samples_in_data_record=0, sampling_freq=0):
-        # initialise these values arbitrarily to aoid errors in
+        """
+        Properties of a signal in an EDF file.
+
+        Parameters
+        ----------
+        label : str, max. length=16, default=''
+        transducer_type : str of size 80, default=''
+            The type of sensor used, e.g. 'thermistor' or 'Ag-AgCl
+            electrode'.
+        physical_dim : str, max. lenght=8, default=''
+            The physical dimension. A string that must start with a
+            prefix (e.g. 'u' for 'micro') followed by the basic
+            dimension (e.g. 'V' for volts). Other examples of basic
+            dimensions are 'K', 'degC' or 'degF' for temperature, and
+            '%' for SaO2. Powers are denoted by '^', as in 'V^2/Hz'. An
+            empty string represents an uncalibrated signal. For
+            standards on labels and units, see
+            http://www.edfplus.info/specs/edftexts.html
+        physical_min : number, default=-1
+        physical_max : number, default=1
+            The physical minimum and maximum should correspond to the digital extremes `digital_min` and `digital_max` and be
+            expressed in the physical dimension `physical_dim`.
+            The values of `physical_min` and `physical_max` must be
+            different.
+        digital_min : number, default=-32768
+        digital_max : number, default=32767
+            "The digital minimum and maximum of each signal should
+            specify the extreme values that can occur in the data
+            records. These often are the extreme output values of the
+            A/D converter." (Kemp et al. 1992). `digital_max` must be
+            larger than `digital_min`. Together, the two `digital_` and
+            the two `physical_` values specify the offset and the amplification of the signal.
+        prefiltering : str, max. length=80, default=''
+            Specifies if this signal was filtered; e.g. for high-pass,
+            low-pass, or notch filtering, 'HP:0.1Hz', 'LP:75Hz',
+            'N:50Hz'
+        number_of_samples_in_data_record : integer, default=0
+            The number of 16-bit integers that this signal occupies
+        sampling_freq : number, default=0
+            The sampling frequency. This subfield is not part of the EDF
+            specification. It is added for convenience.
+
+        Notes
+        -----
+        Use only ascii characters.
+
+        The data in EDF files are saved as two's complement, 16-bit
+        integers. Thus, the range between `digital_min` and
+        `digital_max` must not exceed 2**16 - 1 = 65535.
+        """
+        # Initialise these values arbitrarily to avoid errors in
         # _update_gain, which is called every time the values are set
         # by their @property setters.
         self._digital_min = 0
-        self._digital_max =1
+        self._digital_max = 1 
         self._physical_min = 0
         self._physical_max = 1
 
@@ -319,12 +401,21 @@ class EdfSignal(object):
         self.digital_min = digital_min
         self.digital_max = digital_max
         self.prefiltering = prefiltering
-        self.number_of_samples_in_data_record = \
-            number_of_samples_in_data_record
+        self.number_of_samples_in_data_record = (
+            number_of_samples_in_data_record)
         self.reserved = ''
 
         # Not part of the specification
         self.sampling_freq = sampling_freq
+
+    def _warning_length(self, param, max_size):
+        """
+        A helper function to warn the user whenever the length
+        of a field exceeds that allowed by the EDF specification.
+        """
+        message = (f'{param} must be no longer than {max_size}' +
+            'characters. Some information will be lost.')
+        warnings.warn(message)
 
     @property
     def label(self):
@@ -334,9 +425,9 @@ class EdfSignal(object):
     def label(self, value):
         size = self._sizes[self.LABEL]
         if len(value) > size:
-            warnings.warn('Label is too long.')
+            self._warning_length('Label', size)
             value = value[:size]
-        self._label = value.strip() #replace(' ', '_')
+        self._label = value.strip()
 
     @property
     def transducer_type(self):
@@ -346,7 +437,7 @@ class EdfSignal(object):
     def transducer_type(self, value):
         size = self._sizes[self.TRANSDUCER_TYPE]
         if len(value) > size:
-            warnings.warn('Transducer type too long.')
+            self._warning_length('Transducer type', size)
             value = value[:size]
         self._transducer_type = value.strip()
 
@@ -358,7 +449,7 @@ class EdfSignal(object):
     def physical_dim(self, value):
         size = self._sizes[self.PHYSICAL_DIM]
         if len(value) > size:
-            warnings.warn('Physical dimension is too long.')
+            self._warning_length('Physical dimension', size)
             value = value[:size]
         self._physical_dim = value.strip()
 
@@ -406,7 +497,7 @@ class EdfSignal(object):
     def prefiltering(self, value):
         size = self._sizes[self.PREFILTERING]
         if len(value) > size:
-            warnings.warn('Prefiltering is too long.')
+            self._warning_length('Prefiltering', size)
             value = value[:size]
         self._prefiltering = value.strip()
 
@@ -484,7 +575,9 @@ class EdfSignal(object):
 
 
 class EdfHeader:
-
+    """
+    The header in a EDF file
+    """
     # Fields and sizes (i.e. number of bytes) as per the EDF
     # specification.
     _fields = ('version', 'subject_id', 'recording_id', 'startdate',
@@ -505,17 +598,30 @@ class EdfHeader:
                  equipment_code='', duration_of_data_record=0,
                  date_time=None, reserved='', signals=[]):
         """
-        Initialises an EDF header. Default values are empty (ie.
-        unknown).
+        Initialises an EDF header.
 
-        *signals* must be a list of objects of `class::Signal`.
-
-        *reserved* must be empty is the file conforms to EDF format,
-        or start 'EDF+C' or 'EDF+D' if there is an annotations signal
-        (EDF+ format).
-
-        *duration_of_data_record* can be a float, but it is recommended
-        to be an integer value.
+        Parameters
+        ----------
+        subject_code : str, default=''
+        subject_sex : str, default=''
+        subject_dob : str, default=''
+        subject_name= : str, default=''
+            The parameters `subject_*` are used to construct an object of `class::EdfSubjectId`. See that class for details.
+        experiment_id : str, default=''
+        investigator_id : str, default=''
+        equipment_code : str, default=''
+        date_time : str or datetime or None, default=None
+            The parameters `experiment_id`, `investigator_id`, 
+            `equipment_code` and `date_time` are used to construct and
+            object of `class::EdfRecordingId`. See that class for
+            details.
+        duration_of_data_record : number, default=0
+            This can be a float, but is is recommended to be an integer value
+        reserved : str, default=''
+            Must be an empty string if the file conforms to the EDF
+            format, or 'EDF+C' or 'EDF+D' if the file includes an annotations signal (EDF+ format).
+        signals : list, default=[]
+            A list of objects of `class::Signal`        
         """
         self.version = '0' # Version is always 0.
         if date_time is None:
@@ -563,11 +669,8 @@ class EdfHeader:
         main_hdr = main_hdr.encode('ascii')
         assert len(main_hdr) == 256
 
-        # The signals part of the EDF header expects each field for all
-        # signals instead of all fields of one signal then all field of
-        # the next signl, etc. This is annoying, because it would be
-        # easy to conatenate header signals, but instead we have to
-        # loop along each field.
+        # Loop along each signal and concatenate their parameters to
+        # make the signal header as expected by EDF.
         sig_hdr = ''
         for field in EdfSignal._fields:
             for signal in self.signals:
@@ -688,12 +791,19 @@ class EdfHeader:
 
     @starttime.setter
     def starttime(self, value):
-        '''
-        Start time. It must be either
-        (a) a string 'H.M.S' as required by EDF, e.g. '12.15.05', or
-        (b) a string in standard format 'H:M:S', e.g. '12:15:05', or
-        (b) a datetime object.
-        '''
+        """
+        Recording start time.
+
+        Parameters
+        ----------
+        value : str or datetime
+            It must be either
+            (a) a string 'H.M.S' as required by EDF, e.g. '12.15.05',
+            or
+            (b) a string in standard format 'H:M:S', e.g. '12:15:05',
+            or
+            (b) a datetime object.
+        """
         if type(value) is str:
             try:
                 value = dt.datetime.strptime(value, '%H:%M:%S')
@@ -752,13 +862,3 @@ class EdfHeader:
         self.number_of_bytes_in_header = (
                 256 + (self.number_of_signals * 256))
         self._signals = values
-
-
-if __name__ == '__main__':
-
-    fname = '../daq/data/SC4181E0-PSG.edf'
-
-    header = EdfHeader(subject_dob='2016-08-09')
-    header.subject_id.name = 'Ramiro'
-
-    header.signals = [EdfSignal('EEG1'), EdfSignal('EEG2')]
