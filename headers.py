@@ -346,6 +346,7 @@ class EdfSignal(object):
     ----------
     digital_max : int
     digital_min : int
+    gain : number
     label : str
     number_of_samples_in_data_record : int
     physical_dim : str
@@ -353,6 +354,7 @@ class EdfSignal(object):
     physical_min : number
     prefiltering : str
     reserved : str
+    sampling_freq : number
     transducer_type : str
 
     Methods
@@ -404,7 +406,7 @@ class EdfSignal(object):
     # specification; they are added for convenience.
     __slots__ = ['_' + field for field in _fields]
     __slots__.append('sampling_freq')
-    __slots__.append('gain')
+    __slots__.append('_gain')
 
     def __init__(self, label='', transducer_type='', physical_dim='',
                  physical_min=-1, physical_max=1, digital_min=-32768,
@@ -467,6 +469,7 @@ class EdfSignal(object):
         self._digital_max = 1 
         self._physical_min = 0
         self._physical_max = 1
+        self._gain = 1
 
         # Set EDF fields.
         self.label = label
@@ -599,6 +602,10 @@ class EdfSignal(object):
     def __repr__(self):
         return '<EDFSignal ' + self.label + '>'
 
+    @property
+    def gain(self):
+        return self._gain
+
     def _update_gain(self):
         """
         Calculate the signal gain.
@@ -607,7 +614,7 @@ class EdfSignal(object):
         """
         dy = self.physical_max - self.physical_min
         dx = self.digital_max - self.digital_min
-        self.gain = dy / dx
+        self._gain = dy / dx
 
     def dig_to_phys(self, value):
         """
