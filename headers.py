@@ -579,16 +579,13 @@ class EdfSignal(object):
 
     def _update_gain(self):
         """
-        Calculate gain from settings. Used to convert between digital
-        and physical values. Only useful if a physical dimension was
-        defined.
+        Calculate the signal gain.
+
+        The gain maps physical to digital dimensions.
         """
-        if self.physical_dim:
-            dy = self.physical_max - self.physical_min
-            dx = self.digital_max - self.digital_min
-            self.gain = dy / dx
-        else:
-            self.gain = 1
+        dy = self.physical_max - self.physical_min
+        dx = self.digital_max - self.digital_min
+        self.gain = dy / dx
 
     def dig_to_phys(self, sample):
         """
