@@ -71,7 +71,7 @@ class EdfSubjectId:
         ----------
         code : str, default=''
             Patient code
-        sex : str, 'M', 'F', or 'X', default=''
+        sex : str, {'X', 'M', 'F'}
         dob : str or datetime, default=''
             Date of birth. It must be entered as:
             (a) a string in EDF format 'dd-MMM-yy', as in '30-DEC-1999';
@@ -202,7 +202,7 @@ class EdfRecordingId:
     Methods
     -------
     to_str()
-        Return attributes as a string, as per EDF format
+        Concatenate attributes into a string, as per EDF format
     """
     _len = 80
     __slots__ = ['_startdate', '_experiment_id', '_investigator_id',
@@ -363,6 +363,28 @@ class EdfSignal(object):
         Convert a physical value to a digital value
     print()
         Display a summary of the signal
+
+    Examples
+    --------
+    Example 1: A voltage signal digitised with a 12-bit ADC,
+    single-ended, input range 0 to 5 V. Sampling rate (fs) is 30 Hz.
+    `saving_period_s` is how often (in seconds) the data are saved to disk.
+
+    >>> fs = 30
+    >>> signal = edfrw.EdfSignal(label='ADC', sampling_freq=fs,
+    physical_dim="V", number_of_samples_in_data_record=saving_period_s*fs,
+    physical_min=0, physical_max=5,
+    digital_min=0, digital_max=4095)
+
+    Example 2: A voltage signal, digitised with a 16-bit ADC with input
+    range -10 to 10 V. Sampling rate (fs) is 1000 Hz.
+
+    >>> fs = 1000
+    >>> signal = edfrw.EdfSignal(label='ADC', sampling_freq=fs, number_of_samples_in_data_record=saving_period_s*fs, physical_dim="V", physical_min=-10, physical_max=10, digital_min=-0x8000, digital_max=0x7fff)
+
+    Example 3: A digital signal as a boolean (off = 0, on = 1)
+
+    >>> signal = edfrw.EdfSignal(label='ON-OFF', sampling_freq=fs, number_of_samples_in_data_record=saving_period_s*fs, physical_min=0, physical_max=1, digital_min=0, digital_max=1)
     """
 
     (LABEL, TRANSDUCER_TYPE, PHYSICAL_DIM, PHYSICAL_MIN, PHYSICAL_MAX,
