@@ -587,22 +587,28 @@ class EdfSignal(object):
         dx = self.digital_max - self.digital_min
         self.gain = dy / dx
 
-    def dig_to_phys(self, sample):
+    def dig_to_phys(self, value):
         """
-        Convert a digital value to a physical value. If no physical
-        dimension has been defined the digital value is returned without
-        modification.
+        Convert a digital value to a physical value.
 
-        Follows the equation of a straight line (point-slope form):
+        Parameters
+        ----------
+        value : uint16
+            A digital value to convert. EDF digital values are always
+            unsigned, 16-bit integers.
+        
+        Returns
+        -------
+        phys : float
+            The corresponding physical value.
 
-            y = m * (x - x1) + y1
-
+        Note
+        ----
+        These equations follow those used in EDFBrowser to convert from
+        EDF to ascii ([ascii_export.cpp](https://gitlab.com/Teuniz/EDFbrowser/-/blob/master/ascii_export.cpp))
         """
-        if self.physical_dim:
-            return (self.gain * (sample - self.digital_max)
-                    + self.physical_max)
-        else:
-            return sample
+        offset = self.physical_max / self.gain - self.digital_max
+        return self.gain * (value.astype('int16') + offset)
     
     def phys_to_dig(self, value):
         """
