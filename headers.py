@@ -669,13 +669,13 @@ class EdfHeader:
     number_of_bytes_in_header : int
     number_of_data_records : int
     number_of_signals : int
-    recording_id : str
+    recording_id : object of class EdfRecordingId
     reserved : str
-    signals : list
+    signals : list of EdfSignal
     startdate : datetime.date
     starttime : datetime.time
-    subject_id : str
-    version : int, always 0
+    subject_id : object of class EdfSubjectId
+    version : str, always '0'
 
     Methods
     -------
@@ -829,8 +829,7 @@ class EdfHeader:
     @property
     def subject_id(self):
         """
-        Subject (i.e. patient) identification (string). Spaces will be
-        replaced by underscores.
+        An object of class EdfSubjectId
         """
         return self._subject_id
 
@@ -850,7 +849,7 @@ class EdfHeader:
     @property
     def recording_id(self):
         """
-        Recording ID (string). Spaces will be replaced by underscores.
+        An object of class EdfRecordingId
         """
         return self._recording_id
 
@@ -871,10 +870,6 @@ class EdfHeader:
 
     @property
     def startdate(self):
-        return self._startdate
-
-    @startdate.setter
-    def startdate(self, value):
         """
         Start date.
 
@@ -886,6 +881,10 @@ class EdfHeader:
             (b) a string 'd.m.y' as required by EDF, e.g. '16.10.25', or
             (c) a datetime object
         """
+        return self._startdate
+
+    @startdate.setter
+    def startdate(self, value):
         if type(value) is str:
             try:
                 value = dt.datetime.strptime(value, ISO_DATE_FMT)
@@ -898,10 +897,6 @@ class EdfHeader:
 
     @property
     def starttime(self):
-        return self._starttime
-
-    @starttime.setter
-    def starttime(self, value):
         """
         Recording start time.
 
@@ -910,11 +905,15 @@ class EdfHeader:
         value : str or datetime
             It must be either
             (a) a string 'H.M.S' as required by EDF, e.g. '12.15.05',
-            or
+                or
             (b) a string in standard format 'H:M:S', e.g. '12:15:05',
-            or
+                or
             (b) a datetime object.
         """
+        return self._starttime
+
+    @starttime.setter
+    def starttime(self, value):
         if type(value) is str:
             try:
                 value = dt.datetime.strptime(value, '%H:%M:%S')
@@ -961,10 +960,6 @@ class EdfHeader:
 
     @property
     def signals(self):
-        return self._signals
-
-    @signals.setter
-    def signals(self, values):
         """
         Signals in an EDF file
 
@@ -972,6 +967,10 @@ class EdfHeader:
         ----------
         values : list of EdfSignal        
         """
+        return self._signals
+
+    @signals.setter
+    def signals(self, values):
         # Some values in the header depend on the number of signals.
         # Thus, these values must be updated whenever the signals list
         # changes.
