@@ -623,13 +623,13 @@ class EdfSignal(object):
 
         Parameters
         ----------
-        value : uint16
+        value : uint16 or array of uint16_t
             A digital value to convert. EDF digital values are always
             unsigned, 16-bit integers.
         
         Returns
         -------
-        phys : float
+        phys : float or array of float
             The corresponding physical value.
 
         Note
@@ -644,6 +644,18 @@ class EdfSignal(object):
         """
         Convert a physical value to a digital value.
 
+        Parameters
+        ----------
+        value : float or array of floats
+            The physical value(s) to convert
+
+        Returns
+        -------
+        dig : uint16_t or array of uint16_t
+            The digital value
+
+        Notes
+        -----
         Follows the equation of a straight line (point-slope form):
 
             y = m * (x - x1) + y1
