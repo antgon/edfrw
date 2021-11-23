@@ -22,6 +22,7 @@ with edfrw. If not, see <http://www.gnu.org/licenses/>.
 import struct
 import warnings
 import datetime as dt
+import numpy as np
 
 EDF_HDR_DATE_FMT = '%d.%m.%y'
 EDF_HDR_TIME_FMT = '%H.%M.%S'
@@ -637,7 +638,7 @@ class EdfSignal(object):
         EDF to ascii ([ascii_export.cpp](https://gitlab.com/Teuniz/EDFbrowser/-/blob/master/ascii_export.cpp))
         """
         offset = self.physical_max / self.gain - self.digital_max
-        return self.gain * (value.astype('int16') + offset)
+        return self.gain * (np.int16(value) + offset)
     
     def phys_to_dig(self, value):
         """
@@ -650,7 +651,7 @@ class EdfSignal(object):
             x = (y - y1)/m + x1
         """
         dig = (value - self.physical_max)/self.gain + self.digital_max
-        return dig.astype('uint16')
+        return np.uint16(dig)
 
     def print(self):
         fields = list(self._fields)
