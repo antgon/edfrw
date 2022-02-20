@@ -336,7 +336,7 @@ class EdfRecordingId:
         return self.to_str()
 
 
-class EdfSignal(object):
+class EdfSignal:
     """Properties of a signal.
 
     These properties are stored in the header of an EDF file (after
@@ -410,8 +410,8 @@ class EdfSignal(object):
     __slots__.append('_gain')
 
     def __init__(self, label='', transducer_type='', physical_dim='',
-                 physical_min=-1, physical_max=1, digital_min=-32768,
-                 digital_max=32767, prefiltering='',
+                 physical_min=-32768, physical_max=32767,
+                 digital_min=-32768, digital_max=32767, prefiltering='',
                  number_of_samples_in_data_record=0, sampling_freq=0):
         """
         Properties of a signal in an EDF file.
@@ -431,8 +431,8 @@ class EdfSignal(object):
             empty string represents an uncalibrated signal. For
             standards on labels and units, see
             http://www.edfplus.info/specs/edftexts.html
-        physical_min : number, default=-1
-        physical_max : number, default=1
+        physical_min : number, default=-32768
+        physical_max : number, default=32767
             The physical minimum and maximum should correspond to the digital extremes `digital_min` and `digital_max` and be
             expressed in the physical dimension `physical_dim`.
             The values of `physical_min` and `physical_max` must be
