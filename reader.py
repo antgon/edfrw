@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # coding=utf-8
 """
-Copyright 2017-2021 Antonio González
+Copyright 2017-2022 Antonio González
 
 This file is part of edfrw.
 
@@ -113,19 +113,21 @@ class EdfReader(object):
         self.header = header_fromfile(filename)
         self.filename = filename
         self._open()
-        self._block_size = 0
         self._sampling_interval = []
+
+        samples_per_record = 0
         for signal in self.header.signals:
-            self._block_size += signal.number_of_samples_in_data_record
+            samples_per_record += (
+                signal.number_of_samples_in_data_record)
             self._sampling_interval.append(1/signal.sampling_freq)
 
         # EDF data are saved as int16 so the size (in bytes) of the
-        # block is twice the number of samples
-        self._block_size *= 2
+        # block (record) is twice the number of samples
+        self._bytes_per_record = samples_per_record * 2
 
         # File size according to header
         self.calc_filesize = (self.header.number_of_data_records
-                              * self._block_size
+                              * self._bytes_per_record
                               + self.header.number_of_bytes_in_header)
 
         # Actual file size
@@ -147,9 +149,7 @@ class EdfReader(object):
         Parameters
         ----------
         rec_number : integer
-            Record number to read data from
-
-        TODO This function is still incomplete
+            Record number to read data from (starting from 0)
         """
         if rec_number > self.header.number_of_data_records:
             msg = (f'You requested record {rec_number} but there are' +
@@ -157,16 +157,22 @@ class EdfReader(object):
                    ' records.')
             print(msg)
             return
-        # pointer = (
-        #         (rec_number *
-        #          self.header.number_of_samples_in_data_record) +
-        #         self.header.number_of_bytes_in_header)
+
+        pointer = (self.header.number_of_bytes_in_header +
+                   (self._bytes_per_record * rec_number))
         self._f.seek(pointer)
-        # Data are saved as int16, so the number of bytes to read is
-        # twice the number of samles requested.
-        #nsamples = self.header.number_of_samples_in_data_record * 2
-        samples = self._f.read(nsamples)
+        samples = self._f.read(self._bytes_per_record)
         samples = np.frombuffer(samples, 'int16')
+        
+        # TODO: Reshaping the samples like this only works if all the 
+        # signals in the EDF file contain the same number of samples.
+        # This is how EdfWriter is implemented at the moment, so this 
+        # works for all EDF files created with this library. However,
+        # the EDF specification allows for records containing signals 
+        # sampled at different rates, in which case signals in each
+        # record will contain different number of samples.
+        samples = samples.reshape(self.header.number_of_signals, -1)
+
         return samples
 
     def close(self):
