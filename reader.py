@@ -122,9 +122,23 @@ class EdfReader(object):
         Read a signal in a record
     close()
         Close the file
+
+    Notes
+    -----
+    This class currently only works for reading EDF files. Data from
+    EDF+C files can also be read but the "EDF Annotations" signal will
+    not be properly parsed. EDF+D files are not supported.
     """
 
     def __init__(self, filename):
+        """
+        Open and EDF file for reading
+
+        Parameters
+        ----------
+        filename : str
+            EDF file name.
+        """
         self.header = header_fromfile(filename)
         self.filename = filename
         self.signals = self.header.signals
