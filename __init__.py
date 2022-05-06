@@ -2,7 +2,7 @@
 # coding=utf-8
 
 '''
-Copyright 2017 Antonio González
+Copyright 2017-2022 Antonio González
 
 This file is part of edfrw.
 
