@@ -694,8 +694,6 @@ class EdfHeader:
     -------
     pack()
         Returns the header as a bytes object
-    print()
-        Print a summary of the header contents
     """
     # Fields and sizes (i.e. number of bytes) as per the EDF
     # specification.
@@ -831,13 +829,15 @@ class EdfHeader:
 
         return main_hdr + sig_hdr
 
-    def print(self):
+    def __str__(self):
         """
         Display the contents of the header.
         """
+        s = ""
         for field in self._fields:
             val = self.__getattribute__(field)
-            print('{:27} {}'.format(field, val))
+            s += f"{field:27}{val}\n"
+        return s
 
     @property
     def subject_id(self):
