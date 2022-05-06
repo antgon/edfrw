@@ -18,6 +18,8 @@ for more details.
 You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
 """
+from collections import deque
+import datetime as dt
 import struct
 import numpy as np
 
@@ -101,46 +103,87 @@ def header_fromfile(filename):
 
 
 class EdfReader(object):
-    def __init__(self, filename):
-        """
-        Open an EDF file for reading data
+    """Open an EDF file for reading
 
-        Parameters
-        ----------
-        filename : str
-            Path to the EDF file
-        """
+    Attributes
+    ----------
+    header = object of class EdfHeader
+    filename : str
+    signals : list
+    duration_s : number
+
+    Methods
+    -------
+    read_record()
+        Read all data contained in one record
+    read_signal()
+        Read a signal
+    read_signal_from_record()
+        Read a signal in a record
+    close()
+        Close the file
+    """
+
+    def __init__(self, filename):
         self.header = header_fromfile(filename)
         self.filename = filename
-        self._open()
-        self._sampling_interval = []
+        self.signals = self.header.signals
 
-        samples_per_record = 0
-        for signal in self.header.signals:
-            samples_per_record += (
-                signal.number_of_samples_in_data_record)
-            self._sampling_interval.append(1/signal.sampling_freq)
+        # These attributes represent the way each data record is
+        # organised, and they are useful for accessing the data in 
+        # these records.
+        self._labels = [signal.label for signal in self.signals]   
+        record_samples = [signal.number_of_samples_in_data_record
+                          for signal in self.signals]
+        self._record_samples = np.array(record_samples)
+        # record_sizes?
+        # EDF data are saved as int16 (i.e. one sample = 2 bytes)
+        self._record_bytes = (self._record_samples * 2)
+        self._record_pointers = (
+            np.r_[0, np.cumsum(self._record_bytes)[:-1]])
+        self._bytes_in_record = np.sum(self._record_bytes)
 
-        # EDF data are saved as int16 so the size (in bytes) of the
-        # block (record) is twice the number of samples
-        self._bytes_per_record = samples_per_record * 2
-
-        # File size according to header
-        self.calc_filesize = (self.header.number_of_data_records
-                              * self._bytes_per_record
-                              + self.header.number_of_bytes_in_header)
-
-        # Actual file size
-        self.filesize = self._f.seek(0, 2)
+        # Total duration of the EDF recording. Valid only for
+        # continuous (uninterrupted) records, i.e. plain EDF and EDF+C
+        # files.
+        self.duration_s = (self.header.number_of_data_records *
+                           self.header.duration_of_data_record)
 
         # Note that EDFbrowser does not load files when the calculated
-        # and the actual filesize values do not match but it is still
-        # possible to read and thus rescue files with such 'corrupted'
-        # headers just by reading as many block as there are in the file
-        # (regardless of the number of blocks reported in the header).
+        # and the actual filesize values do not match. It is possible
+        # to read and thus rescue files with such 'corrupted' headers:
+        # read as many block as there are in the file, regardless of
+        # the number of blocks reported in the header).
 
+        # File size according to header
+        # self.calc_filesize = (self.header.number_of_data_records
+                            #   * self._bytes_per_record
+                            #   + self.header.number_of_bytes_in_header)
+
+        # Actual file size
+        # self.filesize = self._f.seek(0, 2)
+        
+        self._open()
+    
     def _open(self):
         self._f = open(self.filename, mode='rb')
+
+    def close(self):
+        self._f.close()
+
+    def __str__(self):
+        dur_str = str(dt.timedelta(seconds=self.duration_s))
+        s = (
+            f'Subject ID:         {self.header.subject_id}\n'
+            f'Recording ID:       {self.header.recording_id}\n' +
+            f'Start date:         {self.header.startdate}\n' +
+            f'Start time:         {self.header.starttime}\n' +
+            f'Duration:           {dur_str}\n' +
+            f'Nr of data records: {self.header.number_of_data_records}\n' +
+            f'Dur of data record: {self.header.duration_of_data_record}\n' +
+            f'Nr of signals:      {self.header.number_of_signals}\n' +
+            f'Signal labels:      {self._labels}')
+        return s
 
     def read_record(self, rec_number):
         """
@@ -149,37 +192,135 @@ class EdfReader(object):
         Parameters
         ----------
         rec_number : integer
-            Record number to read data from (starting from 0)
+            Record number to read data from (index starts from 0)
+
+        Returns
+        -------
+        samples : array of int16
+            Data samples in record, in the original order and format as
+            that stored in the EDF file (i.e. all samples from signal 0
+            followed by all samples from signal 1, etc.)
         """
-        if rec_number > self.header.number_of_data_records:
-            msg = (f'You requested record {rec_number} but there are' +
-                   f' only {self.header.number_of_data_records}' +
-                   ' records.')
-            print(msg)
-            return
-
+        if rec_number >= self.header.number_of_data_records:
+            msg = (f'You requested record {rec_number} but the ' +
+                   'maximum available is ' +
+                   f'{self.header.number_of_data_records-1}.')
+            raise ValueError(msg)
         pointer = (self.header.number_of_bytes_in_header +
-                   (self._bytes_per_record * rec_number))
+                   (self._bytes_in_record * rec_number))
         self._f.seek(pointer)
-        samples = self._f.read(self._bytes_per_record)
-        samples = np.frombuffer(samples, 'int16')
-        
-        # TODO: Reshaping the samples like this only works if all the 
-        # signals in the EDF file contain the same number of samples.
-        # This is how EdfWriter is implemented at the moment, so this 
-        # works for all EDF files created with this library. However,
-        # the EDF specification allows for records containing signals 
-        # sampled at different rates, in which case signals in each
-        # record will contain different number of samples.
-        samples = samples.reshape(self.header.number_of_signals, -1)
-
+        samples = self._f.read(self._bytes_in_record)
+        # samples = np.frombuffer(samples, 'int16')
         return samples
 
-    def close(self):
-        self._f.close()
+    def read_signal_from_record(self, sig_number, rec_number):
+        """
+        Read a signal in a data record.
 
+        Parameters
+        ----------
+        sig_number : int
+            Number of the signal to read (starts from 0)
+        rec_number : int
+            Record number (starts from 0)
+
+        Returns
+        -------
+        time, samples : arrays
+            time in seconds and signal data samples
+        """
+        if sig_number >= self.header.number_of_signals:
+            msg = (f'You requested signal {sig_number} but the ' +
+                   'maximum available is ' +
+                   f'{self.header.number_of_signals-1}.')
+            raise ValueError(msg)
+        
+        if sig_number < 0:
+            msg = f'Invalid signal number: {sig_number}'
+            raise ValueError(msg)
+        
+        if rec_number >= self.header.number_of_data_records:
+            msg = (f'You requested record {rec_number} but the ' +
+                   'maximum available is ' +
+                   f'{self.header.number_of_data_records-1}.')
+            raise ValueError(msg)
+
+        pointer = (self.header.number_of_bytes_in_header +
+                   (self._bytes_in_record * rec_number) +
+                   self._record_pointers[sig_number])
+        self._f.seek(pointer)
+        samples = self._f.read(self._record_bytes[sig_number])
+        samples = np.frombuffer(samples, 'int16')
+        samples = self.signals[sig_number].dig_to_phys(samples)
+
+        time0 = self.header.duration_of_data_record * rec_number
+        time = np.arange(
+            self.signals[sig_number].number_of_samples_in_data_record)
+        time = (time/self.signals[sig_number].sampling_freq) + time0
+
+        return time, samples
+
+    def read_signal(self, signal, from_second=0, to_second=np.Inf):
+        """
+        Read a signal from the EDF file.
+
+        Parameters
+        ----------
+        sig_number : integer or string
+            Signal to read. If an integer, it is the signal index (starting from 0); if a string it is the name (label) of
+            the signal
+        from_second : numeric, default=0
+            Time in seconds to read data from
+        to_second : numeric, default=np.Inf (end of the recording)
+            Time in seconds to read data to
+
+        Returns
+        -------
+        time, samples : arrays of floats
+            Time (in seconds) and signal data samples
+
+        Examples
+        --------
+        >>> edffile = EdfReader("myfile.edf")
+        >>> # Assuming this file has a signal labelled "ADC", read
+        >>> # that signal from time 20 to time 750 seconds
+        >>> time, samples = edffile.read_signal("ADC", 20, 750)
+        """
+        if to_second > self.duration_s:
+            to_second = self.duration_s
+        
+        if type(signal) is str:            
+            sig_number = self._labels.index(signal)
+        else:
+            sig_number = int(signal)
+
+        # The first and last time point will be located in these records
+        rec_from = int(from_second/self.header.duration_of_data_record)
+        rec_to = int(to_second/self.header.duration_of_data_record)
+
+        # If both start and end times are within the same data record,
+        # just read that record.
+        if rec_from == rec_to:
+            time, samples = self.read_signal_from_record(sig_number,
+                                                         rec_from)
+        
+        # If there is more than one record to read, read all these
+        # records
+        else:
+            time = deque()
+            samples = deque()
+            for record in range(rec_from, rec_to):
+                x, y = self.read_signal_from_record(sig_number, record)
+                time.extend(x)
+                samples.extend(y)
+            time = np.array(time)
+            samples = np.array(samples)
+        
+        # Drop samples outside the requested time range and return
+        is_sample = (time >= from_second) & (time < to_second)
+        return time[is_sample], samples[is_sample]
 
 if __name__ == "__main__":
     filename = '../daq/data/SC4181E0-PSG.edf'
     edf = EdfReader(filename)
-    edf.header.print()
+    print(edf)
