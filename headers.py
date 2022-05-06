@@ -19,7 +19,6 @@ You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
 """
 
-import struct
 import warnings
 import datetime as dt
 import numpy as np
