@@ -107,18 +107,18 @@ class EdfReader(object):
 
     Attributes
     ----------
-    header = object of class EdfHeader
+    header = object of `class::EdfHeader`
     filename : str
     signals : list
     duration_s : number
 
     Methods
     -------
-    read_record()
+    read_record(rec_number)
         Read all data contained in one record
-    read_signal()
+    read_signal(signal, from_second=0, to_second=np.Inf)
         Read a signal
-    read_signal_from_record()
+    read_signal_from_record(sig_number, rec_number)
         Read a signal in a record
     close()
         Close the file
