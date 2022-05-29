@@ -5,6 +5,6 @@
 ```python
 from edfrw import open_edf
 
-Open file in reading (default) mode
+# Open file in reading (default) mode
 f = open_edf('myfile.edf')
 ```

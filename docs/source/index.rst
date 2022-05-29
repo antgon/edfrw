@@ -2,13 +2,12 @@ edfrw's documentation
 =====================
 
 .. toctree::
-   :maxdepth: 2
-   :numbered:
-   :caption: Contents:
+   :maxdepth: 3
    
    license
    usage
    specifications
+   api
 
 
 Indices and tables
