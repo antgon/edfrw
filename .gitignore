@@ -1,5 +1,6 @@
 __pycache__
 *.swp
 
-# Docs builds
+dist/
 docs/build/
+edfrw.egg-info/
