@@ -2,4 +2,4 @@ __pycache__
 *.swp
 
 # Docs builds
-docs/_build/
+docs/build/

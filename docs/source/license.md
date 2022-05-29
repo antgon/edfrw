@@ -1,7 +1,9 @@
-License
-=======
+# License notice
 
-Copyright 2017-2022 [Antonio González](mailto:antgon@cantab.net)
+**edfrw** is a Python library for read and writing European Data Format
+(EDF) files
+
+Copyright (C) 2017-2022 Antonio González
 
 This program is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the

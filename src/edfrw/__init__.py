@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 # coding=utf-8
-
-'''
+"""
 Copyright 2017-2022 Antonio González
 
 This file is part of edfrw.
@@ -18,7 +17,7 @@ for more details.
 
 You should have received a copy of the GNU General Public License along
 with edfrw. If not, see <http://www.gnu.org/licenses/>.
-'''
+"""
 
 import sys
 if (sys.version_info.major < 3) or (sys.version_info.minor < 5):
@@ -27,6 +26,8 @@ if (sys.version_info.major < 3) or (sys.version_info.minor < 5):
 from .headers import (EdfHeader, EdfSignal, EdfRecordingId, EdfSubjectId)
 from .writer import EdfWriter
 from .reader import EdfReader
+
+__version__ = '1.0.0'
 
 # Convenience function to read or write an EDF file.
 def open_edf(filename, mode='r'):
