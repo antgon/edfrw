@@ -57,7 +57,7 @@ class EdfSubjectId:
     Methods
     -------
     to_str()
-        Return attributes as single string, as required by EDF 
+        Return attributes as single string, as required by EDF
     """
 
     _len = 80
@@ -76,7 +76,7 @@ class EdfSubjectId:
             Date of birth. It must be entered as:
             (a) a string in EDF format 'dd-MMM-yy', as in '30-DEC-1999';
             (b) a string in iso format 'yyyy-mm-dd', as in
-            '1999-12-30'; or
+                '1999-12-30'; or
             (c) a datetime object.
         name : str, default =''
             The patient's name
@@ -273,7 +273,8 @@ class EdfRecordingId:
         # ValueError is raised if the format does not match.
         elif isinstance(startdate, str):
             try:
-                startdate = dt.datetime.strptime(startdate, ISO_DATE_FMT)
+                startdate = dt.datetime.strptime(startdate,
+                                                 ISO_DATE_FMT)
             except ValueError:
                 try:
                     startdate = dt.datetime.strptime(startdate,
@@ -370,11 +371,13 @@ class EdfSignal:
     --------
     Example 1: A voltage signal digitised with a 12-bit ADC,
     single-ended, input range 0 to 5 V. Sampling rate (fs) is 30 Hz.
-    `saving_period_s` is how often (in seconds) the data are saved to disk.
+    `saving_period_s` is how often (in seconds) the data are saved to
+    disk.
 
     >>> fs = 30
     >>> signal = edfrw.EdfSignal(label='ADC', sampling_freq=fs,
-    physical_dim="V", number_of_samples_in_data_record=saving_period_s*fs,
+    physical_dim="V",
+    number_of_samples_in_data_record=saving_period_s*fs,
     physical_min=0, physical_max=5,
     digital_min=0, digital_max=4095)
 
@@ -382,11 +385,16 @@ class EdfSignal:
     range -10 to 10 V. Sampling rate (fs) is 1000 Hz.
 
     >>> fs = 1000
-    >>> signal = edfrw.EdfSignal(label='ADC', sampling_freq=fs, number_of_samples_in_data_record=saving_period_s*fs, physical_dim="V", physical_min=-10, physical_max=10, digital_min=-0x8000, digital_max=0x7fff)
+    >>> signal = edfrw.EdfSignal(label='ADC', sampling_freq=fs,
+    number_of_samples_in_data_record=saving_period_s*fs,
+    physical_dim="V", physical_min=-10, physical_max=10,
+    digital_min=-0x8000, digital_max=0x7fff)
 
     Example 3: A digital signal as a boolean (off = 0, on = 1)
 
-    >>> signal = edfrw.EdfSignal(label='ON-OFF', sampling_freq=fs, number_of_samples_in_data_record=saving_period_s*fs, physical_min=0, physical_max=1, digital_min=0, digital_max=1)
+    >>> signal = edfrw.EdfSignal(label='ON-OFF', sampling_freq=fs,
+    number_of_samples_in_data_record=saving_period_s*fs,
+    physical_min=0, physical_max=1, digital_min=0, digital_max=1)
     """
 
     (LABEL, TRANSDUCER_TYPE, PHYSICAL_DIM, PHYSICAL_MIN, PHYSICAL_MAX,
@@ -432,7 +440,8 @@ class EdfSignal:
             http://www.edfplus.info/specs/edftexts.html
         physical_min : number, default=-32768
         physical_max : number, default=32767
-            The physical minimum and maximum should correspond to the digital extremes `digital_min` and `digital_max` and be
+            The physical minimum and maximum should correspond to the
+            digital extremes `digital_min` and `digital_max` and be
             expressed in the physical dimension `physical_dim`.
             The values of `physical_min` and `physical_max` must be
             different.
@@ -443,7 +452,8 @@ class EdfSignal:
             records. These often are the extreme output values of the
             A/D converter." (Kemp et al. 1992). `digital_max` must be
             larger than `digital_min`. Together, the two `digital_` and
-            the two `physical_` values specify the offset and the amplification of the signal.
+            the two `physical_` values specify the offset and the
+            amplification of the signal.
         prefiltering : str, max. length=80, default=''
             Specifies if this signal was filtered; e.g. for high-pass,
             low-pass, or notch filtering, 'HP:0.1Hz', 'LP:75Hz',
@@ -634,7 +644,8 @@ class EdfSignal:
         Note
         ----
         These equations follow those used in EDFBrowser to convert from
-        EDF to ascii ([ascii_export.cpp](https://gitlab.com/Teuniz/EDFbrowser/-/blob/master/ascii_export.cpp))
+        EDF to ascii ([ascii_export.cpp](https://gitlab.com/Teuniz/
+        EDFbrowser/-/blob/master/ascii_export.cpp))
         """
         offset = self.physical_max / self.gain - self.digital_max
         return self.gain * (np.int16(value) + offset)
@@ -728,7 +739,7 @@ class EdfHeader:
         investigator_id : str, default=''
         equipment_code : str, default=''
         date_time : str or datetime or None, default=None
-            The parameters `experiment_id`, `investigator_id`, 
+            The parameters `experiment_id`, `investigator_id`,
             `equipment_code` and `date_time` are used to construct and
             object of `class::EdfRecordingId`. See that class for
             details.
@@ -740,7 +751,7 @@ class EdfHeader:
             format, or 'EDF+C' or 'EDF+D' if the file includes an
             annotations signal (EDF+ format).
         signals : list of EdfSignal objects, default=[]
-            A list of objects of `class::Signal`        
+            A list of objects of `class::Signal`
         """
         self.version = '0'  # Version is always 0.
         if date_time is None:
@@ -905,7 +916,8 @@ class EdfHeader:
                 value = dt.datetime.strptime(value, ISO_DATE_FMT)
             except:
                 try:
-                    value = dt.datetime.strptime(value, EDF_HDR_DATE_FMT)
+                    value = dt.datetime.strptime(
+                        value, EDF_HDR_DATE_FMT)
                 except ValueError as error:
                     raise EdfHeaderException(error)
         self._startdate = value.date()
@@ -980,7 +992,7 @@ class EdfHeader:
 
         Parameters
         ----------
-        values : list of EdfSignal        
+        values : list of EdfSignal
         """
         return self._signals
 
