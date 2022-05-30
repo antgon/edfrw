@@ -144,9 +144,9 @@ class EdfReader(object):
         self.signals = self.header.signals
 
         # These attributes represent the way each data record is
-        # organised, and they are useful for accessing the data in 
+        # organised, and they are useful for accessing the data in
         # these records.
-        self._labels = [signal.label for signal in self.signals]   
+        self._labels = [signal.label for signal in self.signals]
         record_samples = [signal.number_of_samples_in_data_record
                           for signal in self.signals]
         self._record_samples = np.array(record_samples)
@@ -170,15 +170,15 @@ class EdfReader(object):
         # the number of blocks reported in the header).
 
         # File size according to header
-        # self.calc_filesize = (self.header.number_of_data_records
-                            #   * self._bytes_per_record
-                            #   + self.header.number_of_bytes_in_header)
+        # self.calc_filesize = (self.header.number_of_data_records *
+        #                       self._bytes_per_record +
+        #                       self.header.number_of_bytes_in_header)
 
         # Actual file size
         # self.filesize = self._f.seek(0, 2)
-        
+
         self._open()
-    
+
     def _open(self):
         self._f = open(self.filename, mode='rb')
 
@@ -248,11 +248,11 @@ class EdfReader(object):
                    'maximum available is ' +
                    f'{self.header.number_of_signals-1}.')
             raise ValueError(msg)
-        
+
         if sig_number < 0:
             msg = f'Invalid signal number: {sig_number}'
             raise ValueError(msg)
-        
+
         if rec_number >= self.header.number_of_data_records:
             msg = (f'You requested record {rec_number} but the ' +
                    'maximum available is ' +
@@ -281,7 +281,8 @@ class EdfReader(object):
         Parameters
         ----------
         sig_number : integer or string
-            Signal to read. If an integer, it is the signal index (starting from 0); if a string it is the name (label) of
+            Signal to read. If an integer, it is the signal index
+            (starting from 0); if a string it is the name (label) of
             the signal
         from_second : numeric, default=0
             Time in seconds to read data from
@@ -302,8 +303,8 @@ class EdfReader(object):
         """
         if to_second > self.duration_s:
             to_second = self.duration_s
-        
-        if type(signal) is str:            
+
+        if type(signal) is str:
             sig_number = self._labels.index(signal)
         else:
             sig_number = int(signal)
@@ -317,7 +318,7 @@ class EdfReader(object):
         if rec_from == rec_to:
             time, samples = self.read_signal_from_record(sig_number,
                                                          rec_from)
-        
+
         # If there is more than one record to read, read all these
         # records
         else:
@@ -329,10 +330,11 @@ class EdfReader(object):
                 samples.extend(y)
             time = np.array(time)
             samples = np.array(samples)
-        
+
         # Drop samples outside the requested time range and return
         is_sample = (time >= from_second) & (time < to_second)
         return time[is_sample], samples[is_sample]
+
 
 if __name__ == "__main__":
     filename = '../daq/data/SC4181E0-PSG.edf'

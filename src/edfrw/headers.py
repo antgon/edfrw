@@ -53,7 +53,7 @@ class EdfSubjectId:
         Patient date of birth
     name : str
         Patient name
-    
+
     Methods
     -------
     to_str()
@@ -80,7 +80,7 @@ class EdfSubjectId:
             (c) a datetime object.
         name : str, default =''
             The patient's name
-        
+
         Any field that is not known can be entered as 'X' (as per the
         EDF standard) or as an empty string ''.
         """
@@ -140,14 +140,14 @@ class EdfSubjectId:
         elif isinstance(dob, dt.date):
             self._dob = dob
         elif isinstance(dob, str):
+            try:
+                dob = dt.datetime.strptime(dob, ISO_DATE_FMT)
+            except ValueError:
                 try:
-                    dob = dt.datetime.strptime(dob, ISO_DATE_FMT)
-                except ValueError:
-                    try:
-                        dob = dt.datetime.strptime(dob, EDF_DOB_FMT)
-                    except ValueError as error:
-                        raise ValueError(error)
-                self._dob = dob.date()
+                    dob = dt.datetime.strptime(dob, EDF_DOB_FMT)
+                except ValueError as error:
+                    raise ValueError(error)
+            self._dob = dob.date()
         else:
             raise ValueError('Invalid date format')
 
@@ -212,7 +212,7 @@ class EdfRecordingId:
                  investigator_id='', equipment_code=''):
         """
         The 'local recording identification field'
-        
+
         The recording identification field forms part of the EDF
         header. All these subfields together will be concatenated
         (separated by spaces) to form one string which must not exceed
@@ -466,7 +466,7 @@ class EdfSignal:
         # _update_gain, which is called every time the values are set
         # by their @property setters.
         self._digital_min = 0
-        self._digital_max = 1 
+        self._digital_max = 1
         self._physical_min = 0
         self._physical_max = 1
         self._gain = 1
@@ -493,7 +493,7 @@ class EdfSignal:
         of a field exceeds that allowed by the EDF specification.
         """
         message = (f'{param} must be no longer than {max_size}' +
-            'characters. Some information will be lost.')
+                   'characters. Some information will be lost.')
         warnings.warn(message)
 
     @property
@@ -625,7 +625,7 @@ class EdfSignal:
         value : uint16 or array of uint16_t
             A digital value to convert. EDF digital values are always
             unsigned, 16-bit integers.
-        
+
         Returns
         -------
         phys : float or array of float
@@ -638,7 +638,7 @@ class EdfSignal:
         """
         offset = self.physical_max / self.gain - self.digital_max
         return self.gain * (np.int16(value) + offset)
-    
+
     def phys_to_dig(self, value):
         """
         Convert a physical value to a digital value.
@@ -722,7 +722,8 @@ class EdfHeader:
         subject_sex : str, default=''
         subject_dob : str, default=''
         subject_name= : str, default=''
-            The parameters `subject_*` are used to construct an object of `class::EdfSubjectId`. See that class for details.
+            The parameters `subject_*` are used to construct an object
+            of `class::EdfSubjectId`. See that class for details.
         experiment_id : str, default=''
         investigator_id : str, default=''
         equipment_code : str, default=''
@@ -732,23 +733,25 @@ class EdfHeader:
             object of `class::EdfRecordingId`. See that class for
             details.
         duration_of_data_record : number, default=0
-            This can be a float, but is is recommended to be an integer value
+            This can be a float, but is is recommended to be an integer
+            value
         reserved : str, default=''
             Must be an empty string if the file conforms to the EDF
-            format, or 'EDF+C' or 'EDF+D' if the file includes an annotations signal (EDF+ format).
+            format, or 'EDF+C' or 'EDF+D' if the file includes an
+            annotations signal (EDF+ format).
         signals : list of EdfSignal objects, default=[]
             A list of objects of `class::Signal`        
         """
-        self.version = '0' # Version is always 0.
+        self.version = '0'  # Version is always 0.
         if date_time is None:
             date_time = dt.datetime.now()
         self.startdate = date_time
         self.starttime = date_time
         self.subject_id = EdfSubjectId(subject_code, subject_sex,
-                                     subject_dob, subject_name)
+                                       subject_dob, subject_name)
         self.recording_id = EdfRecordingId(date_time, experiment_id,
-                                         investigator_id,
-                                         equipment_code)
+                                           investigator_id,
+                                           equipment_code)
         self.reserved = reserved
 
         # From the EDF+ specs: "The 'number of data records' can only be
@@ -772,16 +775,16 @@ class EdfHeader:
                                                self.starttime.minute,
                                                self.starttime.second)
         main_hdr = main_hdr.format(
-                self.version,
-                self.subject_id,
-                self.recording_id,
-                startdate,
-                starttime,
-                self.number_of_bytes_in_header,
-                self.reserved,
-                self.number_of_data_records,
-                self.duration_of_data_record,
-                self.number_of_signals)
+            self.version,
+            self.subject_id,
+            self.recording_id,
+            startdate,
+            starttime,
+            self.number_of_bytes_in_header,
+            self.reserved,
+            self.number_of_data_records,
+            self.duration_of_data_record,
+            self.number_of_signals)
         main_hdr = main_hdr.encode('ascii')
         assert len(main_hdr) == 256
 
@@ -855,7 +858,7 @@ class EdfHeader:
                 raise EdfHeaderException('subject_id not understood')
         if not isinstance(value, EdfSubjectId):
             raise EdfHeaderException(
-                    'subject_id must be of class edfrw.EdfSubjectId')
+                'subject_id must be of class edfrw.EdfSubjectId')
         self._subject_id = value
 
     @property
@@ -872,12 +875,12 @@ class EdfHeader:
                 (start_str, startdate, experiment_id, investigator_id,
                  equipment_code) = value.split()
                 value = EdfRecordingId(startdate, experiment_id,
-                                    investigator_id, equipment_code)
+                                       investigator_id, equipment_code)
             except ValueError:
                 raise EdfHeaderException('recording_id not understood')
         if not isinstance(value, EdfRecordingId):
             raise EdfHeaderException(
-                    'recording_id must be of class edfrw.EdfRecordingId')
+                'recording_id must be of class edfrw.EdfRecordingId')
         self._recording_id = value
 
     @property
@@ -988,5 +991,5 @@ class EdfHeader:
         # changes.
         self._number_of_signals = len(values)
         self.number_of_bytes_in_header = (
-                256 + (self._number_of_signals * 256))
+            256 + (self._number_of_signals * 256))
         self._signals = values

@@ -129,7 +129,7 @@ class EdfWriter(object):
         the concatenation of samples acquired during the period of time
         `duration_of_data_record` first all samples from signal 0, then
         signal 1, etc:
-        
+
         >>> signal_0.samples[sig_0_number_of_samples_in_data_record]
         >>> signal_1.samples[sig_1_number_of_samples_in_data_record]
         """

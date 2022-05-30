@@ -29,6 +29,7 @@ from .reader import EdfReader
 
 __version__ = '1.0.0'
 
+
 # Convenience function to read or write an EDF file.
 def open_edf(filename, mode='r'):
     if mode == 'r':
