@@ -1,7 +1,7 @@
-# License notice
+# License
 
 **edfrw** is a Python library for read and writing European Data Format
-(EDF) files
+(EDF) files.
 
 Copyright (C) 2017-2022 Antonio González
 

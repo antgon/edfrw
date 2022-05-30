@@ -1,23 +1,20 @@
-#! /usr/bin/env python3
-# coding=utf-8
 """
-Copyright 2017-2022 Antonio González
+Tools for reading data from European Data Format (EDF) files.
 
-This file is part of edfrw.
+.. rubric:: Classes
+.. autosummary::
+    :toctree: generated
 
-edfrw is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your
-option) any later version.
+    EdfReader
 
-edfrw is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
+.. rubric:: Functions
+.. autosummary::
+    :toctree: generated
 
-You should have received a copy of the GNU General Public License along
-with edfrw. If not, see <http://www.gnu.org/licenses/>.
+    header_fromfile
+
 """
+
 from collections import deque
 import datetime as dt
 import struct
@@ -28,7 +25,7 @@ from edfrw import (EdfHeader, EdfSignal)
 
 def header_fromfile(filename):
     """
-    Reads the header from an EDF file.
+    Read the header from an EDF file.
 
     Parameters
     ----------
@@ -103,25 +100,30 @@ def header_fromfile(filename):
 
 
 class EdfReader(object):
-    """Open an EDF file for reading
+    """Open an EDF file for reading.
 
     Attributes
     ----------
-    header = object of `class::EdfHeader`
+    header : object of `class::EdfHeader`
+        EDF file header.
     filename : str
+        Path to edf file.
     signals : list
+        List of signals in EDF file.
     duration_s : number
+        Duration of the recording in seconds.
+
 
     Methods
     -------
     read_record(rec_number)
-        Read all data contained in one record
+        Read all data contained in one record.
     read_signal(signal, from_second=0, to_second=np.Inf)
-        Read a signal
+        Read a signal.
     read_signal_from_record(sig_number, rec_number)
-        Read a signal in a record
+        Read a signal in a record.
     close()
-        Close the file
+        Close the file.
 
     Notes
     -----
@@ -132,12 +134,12 @@ class EdfReader(object):
 
     def __init__(self, filename):
         """
-        Open and EDF file for reading
+        Open and EDF file for reading.
 
         Parameters
         ----------
         filename : str
-            EDF file name.
+            Path to the EDF file.
         """
         self.header = header_fromfile(filename)
         self.filename = filename
@@ -183,6 +185,9 @@ class EdfReader(object):
         self._f = open(self.filename, mode='rb')
 
     def close(self):
+        """
+        Close the file.
+        """
         self._f.close()
 
     def __str__(self):
@@ -201,12 +206,12 @@ class EdfReader(object):
 
     def read_record(self, rec_number):
         """
-        Returns data from one record.
+        Return data from one record.
 
         Parameters
         ----------
         rec_number : integer
-            Record number to read data from (index starts from 0)
+            Record number to read data from (index starts from 0).
 
         Returns
         -------
@@ -234,14 +239,14 @@ class EdfReader(object):
         Parameters
         ----------
         sig_number : int
-            Number of the signal to read (starts from 0)
+            Number of the signal to read (starts from 0).
         rec_number : int
-            Record number (starts from 0)
+            Record number (starts from 0).
 
         Returns
         -------
         time, samples : arrays
-            time in seconds and signal data samples
+            Time in seconds and signal data samples.
         """
         if sig_number >= self.header.number_of_signals:
             msg = (f'You requested signal {sig_number} but the ' +
@@ -276,29 +281,31 @@ class EdfReader(object):
 
     def read_signal(self, signal, from_second=0, to_second=np.Inf):
         """
-        Read a signal from the EDF file.
+        Read a signal from an EDF file.
 
         Parameters
         ----------
         sig_number : integer or string
             Signal to read. If an integer, it is the signal index
             (starting from 0); if a string it is the name (label) of
-            the signal
+            the signal.
         from_second : numeric, default=0
-            Time in seconds to read data from
+            Time in seconds to read data from.
         to_second : numeric, default=np.Inf (end of the recording)
-            Time in seconds to read data to
+            Time in seconds to read data to.
 
         Returns
         -------
         time, samples : arrays of floats
-            Time (in seconds) and signal data samples
+            Time (in seconds) and signal data samples.
 
         Examples
         --------
         >>> edffile = EdfReader("myfile.edf")
-        >>> # Assuming this file has a signal labelled "ADC", read
-        >>> # that signal from time 20 to time 750 seconds
+
+        Assuming this file has a signal labelled "ADC", read that
+        signal from time 20 to time 750 seconds.
+
         >>> time, samples = edffile.read_signal("ADC", 20, 750)
         """
         if to_second > self.duration_s:
@@ -334,9 +341,3 @@ class EdfReader(object):
         # Drop samples outside the requested time range and return
         is_sample = (time >= from_second) & (time < to_second)
         return time[is_sample], samples[is_sample]
-
-
-if __name__ == "__main__":
-    filename = '../daq/data/SC4181E0-PSG.edf'
-    edf = EdfReader(filename)
-    print(edf)

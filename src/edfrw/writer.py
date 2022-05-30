@@ -1,27 +1,16 @@
-#! /usr/bin/env python3
-# coding=utf-8
 """
-Copyright 2017-2022 Antonio González
+Write data to files in European Data Format (EDF).
 
-This file is part of edfrw.
+.. rubric:: Classes
+.. autosummary::
+    :toctree: generated
 
-edfrw is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your
-option) any later version.
-
-edfrw is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License along
-with edfrw. If not, see <http://www.gnu.org/licenses/>.
+    EdfWriter
 """
 
 
 class EdfWriter(object):
-    """Open an EDF for writing
+    """Open an EDF for writing.
 
     Attributes
     ----------
@@ -30,22 +19,22 @@ class EdfWriter(object):
     header : object of `class::EdfHeader`
         File header.
     saving_period_s : int
-        How often to write data to the file.
+        How often to write data to the EDF file.
     closed : bool
         Whether the file has been closed.
 
     Methods
     -------
     close()
-        Close the file
+        Close the file.
     flush()
-        Flush data to disk
+        Flush data to disk.
     update_number_of_records()
-        Update the file header with current number of records
+        Update the file header with current number of records.
     write_data_record(buffer)
-        Write a data record
+        Write a data record.
     write_header()
-        Write the EDF header
+        Write the EDF header.
     """
 
     # Size and position in the header of number_of_data_records (nr)
@@ -54,7 +43,7 @@ class EdfWriter(object):
 
     def __init__(self, filename, header, saving_period_s):
         """
-        Create and open and EDF file for writing
+        Create and open an EDF file for writing.
 
         Parameters
         ----------
@@ -87,7 +76,10 @@ class EdfWriter(object):
 
     def write_header(self):
         """
-        Write the EDF header
+        Write the EDF header to the current file.
+
+        Packs the header record attributes in the format required by EDF
+        and writes these values at the beginning of the current file.
         """
         # pack the header
         hdr = self.header.pack()
@@ -145,6 +137,8 @@ class EdfWriter(object):
 
     def update_number_of_records(self):
         """
+        Update the number of data records in the file header.
+
         Writes to the header the most recent value of
         'number_of_data_records' (referred to as 'nr' in the EDF
         specification).

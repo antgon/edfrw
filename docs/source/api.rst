@@ -1,14 +1,16 @@
 API
 ===
 
-.. currentmodule:: edfrw
+Headers (`edfrw.headers`)
+-------------------------
+.. automodule:: edfrw.headers
 
-.. autosummary::
-    :recursive:
-    :toctree: autosummary
-    
-    headers
-    
-    reader
 
-    writer
+Reader (`edfrw.reader`)
+-----------------------
+.. automodule:: edfrw.reader
+
+
+Writer (`edfrw.writer`)
+-------------------------
+.. automodule:: edfrw.writer

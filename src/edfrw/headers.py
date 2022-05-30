@@ -1,22 +1,16 @@
-#! /usr/bin/env python3
-# coding=utf-8
 """
-Copyright 2017-2022 Antonio González
+Manage EDF file headers.
 
-This file is part of edfrw.
+.. rubric:: Classes
 
-edfrw is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your
-option) any later version.
+.. autosummary::
+    :toctree: generated
+    
+    EdfSubjectId
+    EdfRecordingId
+    EdfSignal
+    EdfHeader
 
-edfrw is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License along
-with edfrw. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import warnings
@@ -91,6 +85,9 @@ class EdfSubjectId:
 
     @property
     def code(self):
+        """
+        Get or set the patient's code.
+        """
         return self._code
 
     @code.setter
@@ -102,6 +99,9 @@ class EdfSubjectId:
 
     @property
     def sex(self):
+        """
+        Get or set the patient's sex.
+        """
         return self._sex
 
     @sex.setter
@@ -117,12 +117,8 @@ class EdfSubjectId:
 
     @property
     def dob(self):
-        return self._dob
-
-    @dob.setter
-    def dob(self, dob):
         """
-        Date of birth.
+        Get or set the date of birth (DOB).
 
         If DOB is not known it must be an empty string '' or 'X'. If it
         is known, it must be entered as
@@ -133,6 +129,10 @@ class EdfSubjectId:
 
         In any case the date will be stored as a datetime.date object.
         """
+        return self._dob
+
+    @dob.setter
+    def dob(self, dob):
         if (not dob) or (dob == 'X'):
             self._dob = 'X'
         elif isinstance(dob, dt.datetime):
@@ -153,6 +153,9 @@ class EdfSubjectId:
 
     @property
     def name(self):
+        """
+        Get or set the patient's name.
+        """
         return self._name
 
     @name.setter
@@ -163,6 +166,20 @@ class EdfSubjectId:
         self._name = name.replace(' ', '_')
 
     def to_str(self):
+        """
+        Return patient ID record as a single string.
+
+        The patient identification record in an EDF file must be a
+        string no longer than 80 characters. This function concatenates
+        the patient attributes to create such a string. This is useful
+        for making the full EDF header record.
+
+        Returns
+        -------
+        patient_id : str
+            A string containing patient ID in the format specified by
+            EDF.
+        """
         try:
             dob = self._dob.strftime(EDF_DOB_FMT)
         except:
@@ -211,7 +228,7 @@ class EdfRecordingId:
     def __init__(self, startdate=None, experiment_id='',
                  investigator_id='', equipment_code=''):
         """
-        The 'local recording identification field'
+        The 'local recording identification field'.
 
         The recording identification field forms part of the EDF
         header. All these subfields together will be concatenated
@@ -250,13 +267,17 @@ class EdfRecordingId:
     @property
     def startdate(self):
         """
-        *startdate* input expected to be:
+        Get or set the recording start date.
+
+        To set the date, any of these values are acceptable:
             (a) a string in isoformat ('yyyy-mm-dd'), or
             (b) a `datetime` instance, as in e.g. datetime.now(), or
             (c) a date string with format '%d-%b-%Y', which is the
                 format required by EDF for this field.
             (d) None, in which case the current date will be used.
-        In all cases startdate will be saved as a datetime object.
+
+        In all cases startdate will be saved internally as a datetime
+        object.
         """
         return self._startdate
 
@@ -287,10 +308,16 @@ class EdfRecordingId:
 
     @property
     def experiment_id(self):
+        """
+        Get or set the experiment ID.
+
+        Any spaces will be replaced by underscores, as required by EDF.
+        """
         return self._experiment_id
 
     @experiment_id.setter
     def experiment_id(self, experiment_id):
+        experiment_id = str(experiment_id)
         experiment_id = experiment_id.strip()
         if not experiment_id:
             experiment_id = 'X'
@@ -298,10 +325,16 @@ class EdfRecordingId:
 
     @property
     def investigator_id(self):
+        """
+        Get or set the investigator ID.
+
+        Any spaces will be replaced by underscores, as required by EDF.
+        """
         return self._investigator_id
 
     @investigator_id.setter
     def investigator_id(self, investigator_id):
+        investigator_id = str(investigator_id)
         investigator_id = investigator_id.strip()
         if not investigator_id:
             investigator_id = 'X'
@@ -309,16 +342,36 @@ class EdfRecordingId:
 
     @property
     def equipment_code(self):
+        """
+        Get or set the equipment code.
+
+        Any spaces will be replaced by underscores.
+        """
         return self._equipment_code
 
     @equipment_code.setter
     def equipment_code(self, equipment_code):
+        equipment_code = str(equipment_code)
         equipment_code = equipment_code.strip()
         if not equipment_code:
             equipment_code = 'X'
         self._equipment_code = equipment_code.replace(' ', '_')
 
     def to_str(self):
+        """
+        Return the recording identification as a single string.
+
+        The local recording identification in an EDF file must be a
+        string no longer than 80 characters. This function concatenates
+        the recording attributes to create such a string. This is useful
+        for making the full EDF header record.
+
+        Returns
+        -------
+        rec_id : str
+            A string containing the recording identification in the
+            format specified by EDF.
+        """
         rec_id = 'Startdate {} {} {} {}'.format(
             self.startdate.strftime(EDF_RECDATE_FMT),
             self.experiment_id,
@@ -376,25 +429,26 @@ class EdfSignal:
 
     >>> fs = 30
     >>> signal = edfrw.EdfSignal(label='ADC', sampling_freq=fs,
-    physical_dim="V",
-    number_of_samples_in_data_record=saving_period_s*fs,
-    physical_min=0, physical_max=5,
-    digital_min=0, digital_max=4095)
+    ...     physical_dim="V",
+    ...     number_of_samples_in_data_record=saving_period_s*fs,
+    ...     physical_min=0, physical_max=5,
+    ...     digital_min=0, digital_max=4095)
 
     Example 2: A voltage signal, digitised with a 16-bit ADC with input
     range -10 to 10 V. Sampling rate (fs) is 1000 Hz.
 
     >>> fs = 1000
     >>> signal = edfrw.EdfSignal(label='ADC', sampling_freq=fs,
-    number_of_samples_in_data_record=saving_period_s*fs,
-    physical_dim="V", physical_min=-10, physical_max=10,
-    digital_min=-0x8000, digital_max=0x7fff)
+    ...     number_of_samples_in_data_record=saving_period_s*fs,
+    ...     physical_dim="V", physical_min=-10, physical_max=10,
+    ...     digital_min=-0x8000, digital_max=0x7fff)
 
     Example 3: A digital signal as a boolean (off = 0, on = 1)
 
     >>> signal = edfrw.EdfSignal(label='ON-OFF', sampling_freq=fs,
-    number_of_samples_in_data_record=saving_period_s*fs,
-    physical_min=0, physical_max=1, digital_min=0, digital_max=1)
+    ...     number_of_samples_in_data_record=saving_period_s*fs,
+    ...     physical_min=0, physical_max=1, digital_min=0,
+    ...     digital_max=1)
     """
 
     (LABEL, TRANSDUCER_TYPE, PHYSICAL_DIM, PHYSICAL_MIN, PHYSICAL_MAX,
@@ -429,7 +483,7 @@ class EdfSignal:
         transducer_type : str of size 80, default=''
             The type of sensor used, e.g. 'thermistor' or 'Ag-AgCl
             electrode'.
-        physical_dim : str, max. lenght=8, default=''
+        physical_dim : str, max. length=8, default=''
             The physical dimension. A string that must start with a
             prefix (e.g. 'u' for 'micro') followed by the basic
             dimension (e.g. 'V' for volts). Other examples of basic
@@ -508,6 +562,9 @@ class EdfSignal:
 
     @property
     def label(self):
+        """
+        Get or set the signal label.
+        """
         return self._label
 
     @label.setter
@@ -520,6 +577,7 @@ class EdfSignal:
 
     @property
     def transducer_type(self):
+        "Get or set the transducer type."
         return self._transducer_type
 
     @transducer_type.setter
@@ -532,6 +590,9 @@ class EdfSignal:
 
     @property
     def physical_dim(self):
+        """
+        Get or set the signal's physical dimension.
+        """
         return self._physical_dim
 
     @physical_dim.setter
@@ -544,6 +605,9 @@ class EdfSignal:
 
     @property
     def physical_min(self):
+        """
+        Get or set the signal's physical minimum.
+        """
         return self._physical_min
 
     @physical_min.setter
@@ -553,6 +617,9 @@ class EdfSignal:
 
     @property
     def physical_max(self):
+        """
+        Get or set the signal's physical maximum.
+        """
         return self._physical_max
 
     @physical_max.setter
@@ -562,6 +629,9 @@ class EdfSignal:
 
     @property
     def digital_min(self):
+        """
+        Get or set the signal's digital minimum value.
+        """
         return self._digital_min
 
     @digital_min.setter
@@ -571,6 +641,9 @@ class EdfSignal:
 
     @property
     def digital_max(self):
+        """
+        Get or set the signal's digital maximum value.
+        """
         return self._digital_max
 
     @digital_max.setter
@@ -580,6 +653,14 @@ class EdfSignal:
 
     @property
     def prefiltering(self):
+        """
+        Get or set the signal's prefiltering information.
+
+        Example
+        -------
+        If the signal was low-pass filtered with a 10 Hz cut-off,
+        >>> signal.prefiltering = "LP:10Hz"
+        """
         return self._prefiltering
 
     @prefiltering.setter
@@ -592,6 +673,9 @@ class EdfSignal:
 
     @property
     def number_of_samples_in_data_record(self):
+        """
+        Get or set the number of samples in each data record.
+        """
         return self._number_of_samples_in_data_record
 
     @number_of_samples_in_data_record.setter
@@ -614,13 +698,18 @@ class EdfSignal:
 
     @property
     def gain(self):
+        """
+        Get the signal gain.
+
+        The gain maps physical to digital dimensions. This property is
+        calculated automatically whenever the digital or physical
+        min/max values are set.
+        """
         return self._gain
 
     def _update_gain(self):
         """
         Calculate the signal gain.
-
-        The gain maps physical to digital dimensions.
         """
         dy = self.physical_max - self.physical_min
         dx = self.digital_max - self.digital_min
@@ -775,13 +864,24 @@ class EdfHeader:
 
     def pack(self):
         """
-        Returns the header as a bytes object formatted as required by
-        the EDF specification.
+        Return the header as a bytes object.
+
+        The header record, which includes the subject, recording, and
+        signal(s) attributes, are concatenated into a single bytes
+        (ascii string) object, as required by the EDF specification.
+        This object can be then used to e.g. write the header record in
+        an opened EDF file.
+
+        Returns
+        -------
+        main_hdr : str (ascii)
+            The record header, formatted as per the EDF requirements.
         """
         main_hdr = ''
         for n in self._sizes:
             main_hdr += '{:<' + str(n) + '}'
-        startdate = dt.datetime.strftime(self.startdate, EDF_HDR_DATE_FMT)
+        startdate = dt.datetime.strftime(self.startdate,
+                                         EDF_HDR_DATE_FMT)
         starttime = '{:02}.{:02}.{:02}'.format(self.starttime.hour,
                                                self.starttime.minute,
                                                self.starttime.second)
@@ -855,7 +955,23 @@ class EdfHeader:
     @property
     def subject_id(self):
         """
-        An object of class EdfSubjectId
+        Get or set the subject (patient) ID record.
+
+        The subject ID can be a single string with values [code, sex,
+        dob, name] separated by spaces (as is the case when reading the
+        patient ID from the header of and EDF file), or an object of
+        class ``EdfSubjectId``.
+
+        Examples
+        --------
+        Use a single string, values are space-separated.
+
+        >>> header.subject_id = "the_code X 1990-01-01 the_name"
+
+        or use EdfSubjectID
+
+        >>> id = EdfSubjectID(code, sex, dob, name)
+        >>> header.subject_id = id
         """
         return self._subject_id
 
@@ -875,7 +991,27 @@ class EdfHeader:
     @property
     def recording_id(self):
         """
-        An object of class EdfRecordingId
+        Get or set the recording identification.
+
+        The recording ID can be a single string with values [start_str,
+        startdate, experiment_id, investigator_id, equipment_code]
+        separated by spaces (as is the case when reading the recording
+        ID from the header of and EDF file), or an object of class
+        ``EdfRecordingId``.
+
+        Examples
+        --------
+        Using one, space-separated string of values:
+
+        >>> rec_id = ("start_str startdate experiment_id " +
+                "investigator_id  equipment_code")
+        >>> header.recording_id = rec_id
+
+        Using EdfRecordingId:
+
+        >>> rec_id = EdfRecordingId(startdate, experiment_id,
+        ...     investigator_id, equipment_code)
+        >>> header.recording_id = rec_id
         """
         return self._recording_id
 
@@ -897,7 +1033,7 @@ class EdfHeader:
     @property
     def startdate(self):
         """
-        Start date.
+        Set or get the recording start date.
 
         Parameters
         ----------
@@ -906,6 +1042,10 @@ class EdfHeader:
             (a) a string 'yyyy-mm-dd', e.g. '2016-10-25', or
             (b) a string 'd.m.y' as required by EDF, e.g. '16.10.25', or
             (c) a datetime object
+
+        Returns
+        -------
+        startdate : datetime object
         """
         return self._startdate
 
@@ -925,7 +1065,7 @@ class EdfHeader:
     @property
     def starttime(self):
         """
-        Recording start time.
+        Get or set the recording start time.
 
         Parameters
         ----------
@@ -953,8 +1093,12 @@ class EdfHeader:
 
     @property
     def number_of_bytes_in_header(self):
-        # This value depends on the number of signals, so it should
-        # be updated whenever the number of signals changes.
+        """
+        Get or set the number of bytes in the data header.
+
+        This value depends on the number of signals, so it should be
+        updated whenever the number of signals changes.
+        """
         return self._number_of_bytes_in_header
 
     @number_of_bytes_in_header.setter
@@ -971,7 +1115,11 @@ class EdfHeader:
 
     @property
     def duration_of_data_record(self):
-        # This value is recommended (but not required) to be an integer
+        """
+        Get or set the duration (in seconds) of the data record.
+
+        This value is recommended (but not required) to be an integer.
+        """
         return self._duration_of_data_record
 
     @duration_of_data_record.setter
@@ -981,18 +1129,16 @@ class EdfHeader:
     @property
     def number_of_signals(self):
         """
-        Number of signals in the EDF file. Read-only value.
+        Get the number of signals in the EDF file.
         """
         return self._number_of_signals
 
     @property
     def signals(self):
         """
-        Signals in an EDF file
+        Get or set the list of signals in an EDF file.
 
-        Parameters
-        ----------
-        values : list of EdfSignal
+        This attribute is a list of ``EdfSignal`` signal objects.
         """
         return self._signals
 

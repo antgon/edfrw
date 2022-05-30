@@ -1,5 +1,9 @@
 
-# EDF specifications primer
+# Overview of EDF specifications
+
+This section presents a brief overview of the EDF specifications. This
+overview should help understand how to use the various functions and
+classes in this ``edfrw`` library.
 
 From the [EDF's website](http://www.edfplus.info):
 
