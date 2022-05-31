@@ -280,7 +280,6 @@ class EdfReader(object):
 
         Assuming this file has a signal labelled "ADC", read that
         signal from time 20 to time 750 seconds.
-
         >>> time, samples = edffile.read_signal("ADC", 20, 750)
         """
         if to_second > self.duration_s:
@@ -292,8 +291,10 @@ class EdfReader(object):
             sig_number = int(signal)
 
         # The first and last time point will be located in these records
-        rec_from = int(from_second/self.header.duration_of_data_record)
-        rec_to = int(to_second/self.header.duration_of_data_record)
+        rec_from = int(np.floor(
+            from_second/self.header.duration_of_data_record))
+        rec_to = int(np.ceil(
+            to_second/self.header.duration_of_data_record))
 
         # If both start and end times are within the same data record,
         # just read that record.
