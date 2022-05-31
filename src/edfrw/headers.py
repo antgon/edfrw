@@ -734,12 +734,13 @@ class EdfSignal:
         dig = (value - self.physical_max)/self.gain + self.digital_max
         return np.uint16(dig)
 
-    def print(self):
-        fields = list(self._fields)
-        fields.extend(['sampling_freq', 'gain'])
-        for field in fields:
-            val = self.__getattribute__(field)
-            print('{:33} {}'.format(field, val))
+    def __str__(self):
+        s = ""
+        for key in self.__slots__:
+            key = key.strip("_")
+            val = self.__getattribute__(key)
+            s += f"{key:32} {val}\n"
+        return s
 
 
 class EdfHeader:
