@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://edfrw.readthedocs.io/api/writer/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Writer - edfrw</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Writer";
+        var mkdocs_page_input_path = "api/writer.md";
+        var mkdocs_page_url = "/api/writer/";
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> edfrw
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Home</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../..">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../license/">License</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Usage</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/reading/">Reading data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/writing/">Writing data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/specifications/">The EDF specification</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../headers/">Headers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../reader/">Reader</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Writer</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#edfrw.writer.EdfWriter">EdfWriter</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.writer.EdfWriter.close">close()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.writer.EdfWriter.update_number_of_records">update_number_of_records()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.writer.EdfWriter.write_data_record">write_data_record()</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#edfrw.writer.EdfWriter.write_data_record--notes">Notes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.writer.EdfWriter.write_header">write_header()</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">edfrw</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API &raquo;</li><li>Writer</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/antgon/edfrw/edit/master/docs/api/writer.md"
+          class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 id="edfrw.writer" class="doc doc-heading">
+          <code>edfrw.writer</code>
+
+
+</h2>
+
+  <div class="doc doc-contents first">
+  
+      <p>Write data to files in European Data Format (EDF).</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edfrw.writer.EdfWriter" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">EdfWriter</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">saving_period_s</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+      <p class="doc doc-class-bases">
+        Bases: <code>object</code></p>
+
+  
+      <p>Open an EDF for writing.</p>
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>filename</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>EDF file name.</p></td>
+        </tr>
+        <tr>
+          <td><code>header</code></td>
+          <td>
+                <code>object of `class::EdfHeader`</code>
+          </td>
+          <td><p>File header.</p></td>
+        </tr>
+        <tr>
+          <td><code>saving_period_s</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>How often to write data to the EDF file.</p></td>
+        </tr>
+        <tr>
+          <td><code>closed</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Whether the file has been closed.</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  
+      <p>Create and open an EDF file for writing.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>filename</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>EDF file name.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>header</code></td>
+          <td>
+                <code>instance of </code>
+          </td>
+          <td><p>The file header.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>saving_period_s</code></td>
+          <td>
+                <code>integer</code>
+          </td>
+          <td><p>How often (in seconds) will the data be saved to disk? This
+value sets EDF header&rsquo;s <code>duration_of_data_record</code>, which is
+the duration in seconds of one data record.</p>
+<p>From the specification: &ldquo;The duration of each data record is
+recommended to be a whole number of seconds and its size
+(number of bytes) is recommended not to exceed 61440. Only
+if a 1s data record exceeds this size limit, the duration is
+recommended to be smaller than 1s (e.g. 0.01).&rdquo;</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.writer.EdfWriter.close" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">close</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Close the EDF file</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.writer.EdfWriter.update_number_of_records" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">update_number_of_records</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Update the number of data records in the file header.</p>
+<p>Writes to the header the most recent value of
+&lsquo;number_of_data_records&rsquo; (referred to as &lsquo;nr&rsquo; in the EDF
+specification).</p>
+<p>By definition, this value is 8-bits long and it starts at
+position 236 in the header.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.writer.EdfWriter.write_data_record" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">write_data_record</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Write one data record.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>buffer</code></td>
+          <td>
+                <code>uint16</code>
+          </td>
+          <td><p>The data to be save to disk. It must be an unsigned 16-bit
+integer, two-complement values, as required by the EDF file
+format specification.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <h6 id="edfrw.writer.EdfWriter.write_data_record--notes">Notes</h6>
+<p>Signals are allowed to be acquired at different sampling rates.
+The data are saved in data blocks (named &lsquo;data records&rsquo; in the
+specification). The total number of samples in the block is thus
+determined by adding the sizes of the individual signals
+(<code>signal.number_of_samples_in_data_record</code>).</p>
+<p>Each data block holds all data acquired during a time interval
+of <code>header.duration_of_data_record</code> seconds, and the total
+number of data records in the file are
+<code>header.number_of_data_records</code>.</p>
+<p>Thus, to write a data block (data record), the data must be
+the concatenation of samples acquired during the period of time
+<code>duration_of_data_record</code> first all samples from signal 0, then
+signal 1, etc:</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>signal_0.samples[sig_0_number_of_samples_in_data_record]
+signal_1.samples[sig_1_number_of_samples_in_data_record]</p>
+</blockquote>
+</blockquote>
+</blockquote>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.writer.EdfWriter.write_header" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">write_header</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Write the EDF header to the current file.</p>
+<p>Packs the header record attributes in the format required by EDF
+and writes these values at the beginning of the current file.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../reader/" class="btn btn-neutral float-left" title="Reader"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/antgon/edfrw" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../reader/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

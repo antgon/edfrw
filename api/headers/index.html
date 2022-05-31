@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://edfrw.readthedocs.io/api/headers/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Headers - edfrw</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Headers";
+        var mkdocs_page_input_path = "api/headers.md";
+        var mkdocs_page_url = "/api/headers/";
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> edfrw
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Home</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../..">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../license/">License</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Usage</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/reading/">Reading data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/writing/">Writing data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/specifications/">The EDF specification</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Headers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#edfrw.headers.EdfHeader">EdfHeader</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.__str__">__str__()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.duration_of_data_record">duration_of_data_record()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.number_of_bytes_in_header">number_of_bytes_in_header()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.number_of_signals">number_of_signals()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.pack">pack()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.recording_id">recording_id()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.signals">signals()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.startdate">startdate()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.starttime">starttime()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfHeader.subject_id">subject_id()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edfrw.headers.EdfRecordingId">EdfRecordingId</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfRecordingId.equipment_code">equipment_code()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfRecordingId.experiment_id">experiment_id()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfRecordingId.investigator_id">investigator_id()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfRecordingId.startdate">startdate()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfRecordingId.to_str">to_str()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edfrw.headers.EdfSignal">EdfSignal</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal--notes">Notes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.dig_to_phys">dig_to_phys()</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#edfrw.headers.EdfSignal.dig_to_phys--notes">Notes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.digital_max">digital_max()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.digital_min">digital_min()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.gain">gain()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.label">label()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.number_of_samples_in_data_record">number_of_samples_in_data_record()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.phys_to_dig">phys_to_dig()</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#edfrw.headers.EdfSignal.phys_to_dig--notes">Notes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.physical_dim">physical_dim()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.physical_max">physical_max()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.physical_min">physical_min()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.prefiltering">prefiltering()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSignal.transducer_type">transducer_type()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edfrw.headers.EdfSubjectId">EdfSubjectId</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSubjectId.code">code()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSubjectId.dob">dob()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSubjectId.name">name()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSubjectId.sex">sex()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.headers.EdfSubjectId.to_str">to_str()</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../reader/">Reader</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../writer/">Writer</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">edfrw</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API &raquo;</li><li>Headers</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/antgon/edfrw/edit/master/docs/api/headers.md"
+          class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 id="edfrw.headers" class="doc doc-heading">
+          <code>edfrw.headers</code>
+
+
+</h2>
+
+  <div class="doc doc-contents first">
+  
+      <p>Manage EDF file headers.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edfrw.headers.EdfHeader" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">EdfHeader</span><span class="p">(</span><span class="n">subject_code</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">subject_sex</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">subject_dob</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">subject_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">experiment_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">investigator_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">equipment_code</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">duration_of_data_record</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">date_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reserved</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="p">[])</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>The header in a EDF file.</p>
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>duration_of_data_record</code></td>
+          <td>
+                <code>number</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>number_of_bytes_in_header</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>number_of_data_records</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>number_of_signals</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>recording_id</code></td>
+          <td>
+                <code>object of class EdfRecordingId</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>reserved</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>signals</code></td>
+          <td>
+                <code>list of EdfSignal</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>startdate</code></td>
+          <td>
+                <code>datetime.<span title="datetime.date">date</span></code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>starttime</code></td>
+          <td>
+                <code>datetime.<span title="datetime.time">time</span></code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>subject_id</code></td>
+          <td>
+                <code>object of class EdfSubjectId</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>version</code></td>
+          <td>
+                <code>str, always &#39;0&#39;</code>
+          </td>
+          <td></td>
+        </tr>
+    </tbody>
+  </table>
+
+  
+      <p>Initialises an EDF header.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>subject_code</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>subject_sex</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>subject_dob</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>subject_name</code></td>
+          <td>
+          </td>
+          <td><p>The parameters <code>subject_*</code> are used to construct an object
+of <code>class::EdfSubjectId</code>. See that class for details.</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>experiment_id</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>investigator_id</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>equipment_code</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>date_time</code></td>
+          <td>
+                <code>str or datetime or None, default</code>
+          </td>
+          <td><p>The parameters <code>experiment_id</code>, <code>investigator_id</code>,
+<code>equipment_code</code> and <code>date_time</code> are used to construct and
+object of <code>class::EdfRecordingId</code>. See that class for
+details.</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>duration_of_data_record</code></td>
+          <td>
+                <code>number, default</code>
+          </td>
+          <td><p>This can be a float, but is is recommended to be an integer
+value</p></td>
+          <td>
+                <code>0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>reserved</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td><p>Must be an empty string if the file conforms to the EDF
+format, or &lsquo;EDF+C&rsquo; or &lsquo;EDF+D&rsquo; if the file includes an
+annotations signal (EDF+ format).</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>signals</code></td>
+          <td>
+                <code>list of EdfSignal objects, default</code>
+          </td>
+          <td><p>A list of objects of <code>class::Signal</code></p></td>
+          <td>
+                <code>[]</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.__str__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__str__</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Display the contents of the header.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.duration_of_data_record" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">duration_of_data_record</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the duration (in seconds) of the data record.</p>
+<p>This value is recommended (but not required) to be an integer.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.number_of_bytes_in_header" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">number_of_bytes_in_header</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the number of bytes in the data header.</p>
+<p>This value depends on the number of signals, so it should be
+updated whenever the number of signals changes.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.number_of_signals" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">number_of_signals</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get the number of signals in the EDF file.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.pack" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">pack</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Return the header as a bytes object.</p>
+<p>The header record, which includes the subject, recording, and
+signal(s) attributes, are concatenated into a single bytes
+(ascii string) object, as required by the EDF specification.
+This object can be then used to e.g. write the header record in
+an opened EDF file.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>main_hdr</code></td>          <td>
+                <code>str(ascii)</code>
+          </td>
+          <td><p>The record header, formatted as per the EDF requirements.</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.recording_id" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">recording_id</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the recording identification.</p>
+<p>The recording ID can be a single string with values [start_str,
+startdate, experiment_id, investigator_id, equipment_code]
+separated by spaces (as is the case when reading the recording
+ID from the header of and EDF file), or an object of class
+<code>EdfRecordingId</code>.</p>
+
+<p><strong>Examples:</strong></p>
+    <p>Using one, space-separated string of values:</p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">rec_id</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;start_str startdate experiment_id &quot;</span> <span class="o">+</span>
+<span class="go">        &quot;investigator_id  equipment_code&quot;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">header</span><span class="o">.</span><span class="n">recording_id</span> <span class="o">=</span> <span class="n">rec_id</span>
+</code></pre></div>
+    <p>Using EdfRecordingId:</p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">rec_id</span> <span class="o">=</span> <span class="n">EdfRecordingId</span><span class="p">(</span><span class="n">startdate</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">investigator_id</span><span class="p">,</span> <span class="n">equipment_code</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">header</span><span class="o">.</span><span class="n">recording_id</span> <span class="o">=</span> <span class="n">rec_id</span>
+</code></pre></div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.signals" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">signals</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the list of signals in an EDF file.</p>
+<p>This attribute is a list of <code>EdfSignal</code> signal objects.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.startdate" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">startdate</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set or get the recording start date.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>value</code></td>
+          <td>
+                <code>str or datetime</code>
+          </td>
+          <td><p>It must be either
+(a) a string &lsquo;yyyy-mm-dd&rsquo;, e.g. &lsquo;2016-10-25&rsquo;, or
+(b) a string &lsquo;d.m.y&rsquo; as required by EDF, e.g. &lsquo;16.10.25&rsquo;, or
+(c) a datetime object</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>startdate</code></td>          <td>
+                <code>datetime object</code>
+          </td>
+          <td></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.starttime" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">starttime</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the recording start time.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>value</code></td>
+          <td>
+                <code>str or datetime</code>
+          </td>
+          <td><p>It must be either
+(a) a string &lsquo;H.M.S&rsquo; as required by EDF, e.g. &lsquo;12.15.05&rsquo;,
+or
+(b) a string in standard format &lsquo;H:M:S&rsquo;, e.g. &lsquo;12:15:05&rsquo;,
+or
+(b) a datetime object.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfHeader.subject_id" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">subject_id</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the subject (patient) ID record.</p>
+<p>The subject ID can be a single string with values [code, sex,
+dob, name] separated by spaces (as is the case when reading the
+patient ID from the header of and EDF file), or an object of
+class <code>EdfSubjectId</code>.</p>
+
+<p><strong>Examples:</strong></p>
+    <p>Use a single string, values are space-separated.</p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">header</span><span class="o">.</span><span class="n">subject_id</span> <span class="o">=</span> <span class="s2">&quot;the_code X 1990-01-01 the_name&quot;</span>
+</code></pre></div>
+    <p>or use EdfSubjectID</p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nb">id</span> <span class="o">=</span> <span class="n">EdfSubjectID</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">sex</span><span class="p">,</span> <span class="n">dob</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">header</span><span class="o">.</span><span class="n">subject_id</span> <span class="o">=</span> <span class="nb">id</span>
+</code></pre></div>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edfrw.headers.EdfRecordingId" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">EdfRecordingId</span><span class="p">(</span><span class="n">startdate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">investigator_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">equipment_code</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Recording identification.</p>
+<p>The &lsquo;local recording identification field&rsquo; is a string of 80
+characters in the header of a EDF file. It contains information
+about the start date, experiment ID, investigator ID, and equipment
+code, each of these separated by a space.</p>
+<p>This class handles that information. It is seldom useful on its own
+but rather as an attribute of <code>class::Header</code>.</p>
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>equipment_code</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>experiment_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>investigator_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>startdate</code></td>
+          <td>
+                <code>datetime.<span title="datetime.date">date</span></code>
+          </td>
+          <td></td>
+        </tr>
+    </tbody>
+  </table>
+
+  
+      <p>The &lsquo;local recording identification field&rsquo;.</p>
+<p>The recording identification field forms part of the EDF
+header. All these subfields together will be concatenated
+(separated by spaces) to form one string which must not exceed
+80 characters. Note that the text &lsquo;Startdate&rsquo; is always
+prepended to this string, and this must betaken into account
+for the character count.</p>
+<p>Fields that are unknown (empty strings) will be replaced by an
+&lsquo;X&rsquo; as per the EDF specification.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>startdate</code></td>
+          <td>
+                <code>str or datetime or None, default</code>
+          </td>
+          <td><p>The start date. Expected to be:
+(a) a string in isoformat (&lsquo;yyyy-mm-dd&rsquo;), or
+(b) a <code>datetime</code> instance, as in e.g. datetime.now(), or
+(c) a date string with format &lsquo;%d-%b-%Y&rsquo;, as in e.g.
+&lsquo;02-AUG-1951&rsquo;, which is the format required by EDF for this
+field, or
+(d) None, in which case the current date will be used</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>experiment_id</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td><p>&ldquo;The  hospital administration code of the investigation,
+i.e. EEG number&rdquo; (Kemp, 2003)</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>investigator_id</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td><p>&ldquo;A code identifying the responsible investigator&rdquo; (Kemp,
+2003)</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>equipment_code</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td><p>&ldquo;A code specifying the used equipment&rdquo; (Kemp, 2003)</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfRecordingId.equipment_code" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">equipment_code</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the equipment code.</p>
+<p>Any spaces will be replaced by underscores.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfRecordingId.experiment_id" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">experiment_id</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the experiment ID.</p>
+<p>Any spaces will be replaced by underscores, as required by EDF.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfRecordingId.investigator_id" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">investigator_id</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the investigator ID.</p>
+<p>Any spaces will be replaced by underscores, as required by EDF.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfRecordingId.startdate" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">startdate</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the recording start date.</p>
+<p>To set the date, any of these values are acceptable:
+    (a) a string in isoformat (&lsquo;yyyy-mm-dd&rsquo;), or
+    (b) a <code>datetime</code> instance, as in e.g. datetime.now(), or
+    (c) a date string with format &lsquo;%d-%b-%Y&rsquo;, which is the
+        format required by EDF for this field.
+    (d) None, in which case the current date will be used.</p>
+<p>In all cases startdate will be saved internally as a datetime
+object.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfRecordingId.to_str" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">to_str</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Return the recording identification as a single string.</p>
+<p>The local recording identification in an EDF file must be a
+string no longer than 80 characters. This function concatenates
+the recording attributes to create such a string. This is useful
+for making the full EDF header record.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>rec_id</code></td>          <td>
+                <code>str</code>
+          </td>
+          <td><p>A string containing the recording identification in the
+format specified by EDF.</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edfrw.headers.EdfSignal" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">EdfSignal</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">transducer_type</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">physical_dim</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">physical_min</span><span class="o">=-</span><span class="mi">32768</span><span class="p">,</span> <span class="n">physical_max</span><span class="o">=</span><span class="mi">32767</span><span class="p">,</span> <span class="n">digital_min</span><span class="o">=-</span><span class="mi">32768</span><span class="p">,</span> <span class="n">digital_max</span><span class="o">=</span><span class="mi">32767</span><span class="p">,</span> <span class="n">prefiltering</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">number_of_samples_in_data_record</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sampling_freq</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Properties of a signal.</p>
+<p>These properties are stored in the header of an EDF file (after
+the first 256 bytes which contain the &lsquo;main&rsquo; header). Each signal
+header is 256 bytes long.</p>
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>digital_max</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>digital_min</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>gain</code></td>
+          <td>
+                <code>number</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>label</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>number_of_samples_in_data_record</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>physical_dim</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>physical_max</code></td>
+          <td>
+                <code>number</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>physical_min</code></td>
+          <td>
+                <code>number</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>prefiltering</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>reserved</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>sampling_freq</code></td>
+          <td>
+                <code>number</code>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><code>transducer_type</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+        </tr>
+    </tbody>
+  </table>
+
+<p><strong>Examples:</strong></p>
+    <p>Example 1: A voltage signal digitised with a 12-bit ADC,
+single-ended, input range 0 to 5 V. Sampling rate (fs) is 30 Hz.
+<code>saving_period_s</code> is how often (in seconds) the data are saved to
+disk.</p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">fs</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">signal</span> <span class="o">=</span> <span class="n">edfrw</span><span class="o">.</span><span class="n">EdfSignal</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;ADC&#39;</span><span class="p">,</span> <span class="n">sampling_freq</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">physical_dim</span><span class="o">=</span><span class="s2">&quot;V&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">number_of_samples_in_data_record</span><span class="o">=</span><span class="n">saving_period_s</span><span class="o">*</span><span class="n">fs</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">physical_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">physical_max</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">digital_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">digital_max</span><span class="o">=</span><span class="mi">4095</span><span class="p">)</span>
+</code></pre></div>
+    <p>Example 2: A voltage signal, digitised with a 16-bit ADC with input
+range -10 to 10 V. Sampling rate (fs) is 1000 Hz.</p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">fs</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">signal</span> <span class="o">=</span> <span class="n">edfrw</span><span class="o">.</span><span class="n">EdfSignal</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;ADC&#39;</span><span class="p">,</span> <span class="n">sampling_freq</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">number_of_samples_in_data_record</span><span class="o">=</span><span class="n">saving_period_s</span><span class="o">*</span><span class="n">fs</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">physical_dim</span><span class="o">=</span><span class="s2">&quot;V&quot;</span><span class="p">,</span> <span class="n">physical_min</span><span class="o">=-</span><span class="mi">10</span><span class="p">,</span> <span class="n">physical_max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">digital_min</span><span class="o">=-</span><span class="mh">0x8000</span><span class="p">,</span> <span class="n">digital_max</span><span class="o">=</span><span class="mh">0x7fff</span><span class="p">)</span>
+</code></pre></div>
+    <p>Example 3: A digital signal as a boolean (off = 0, on = 1)</p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">signal</span> <span class="o">=</span> <span class="n">edfrw</span><span class="o">.</span><span class="n">EdfSignal</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;ON-OFF&#39;</span><span class="p">,</span> <span class="n">sampling_freq</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">number_of_samples_in_data_record</span><span class="o">=</span><span class="n">saving_period_s</span><span class="o">*</span><span class="n">fs</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">physical_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">physical_max</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">digital_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">digital_max</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+  
+      <p>Properties of a signal in an EDF file.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>label</code></td>
+          <td>
+                <code>str, max.<span title="max.length">length</span></code>
+          </td>
+          <td></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>transducer_type</code></td>
+          <td>
+                <code>str of size 80, default</code>
+          </td>
+          <td><p>The type of sensor used, e.g. &lsquo;thermistor&rsquo; or &lsquo;Ag-AgCl
+electrode&rsquo;.</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>physical_dim</code></td>
+          <td>
+                <code>str, max.<span title="max.length">length</span></code>
+          </td>
+          <td><p>The physical dimension. A string that must start with a
+prefix (e.g. &lsquo;u&rsquo; for &lsquo;micro&rsquo;) followed by the basic
+dimension (e.g. &lsquo;V&rsquo; for volts). Other examples of basic
+dimensions are &lsquo;K&rsquo;, &lsquo;degC&rsquo; or &lsquo;degF&rsquo; for temperature, and
+&lsquo;%&rsquo; for SaO2. Powers are denoted by &lsquo;^&rsquo;, as in &lsquo;V^2/Hz&rsquo;. An
+empty string represents an uncalibrated signal. For
+standards on labels and units, see
+http://www.edfplus.info/specs/edftexts.html</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>physical_min</code></td>
+          <td>
+                <code>number, default</code>
+          </td>
+          <td></td>
+          <td>
+                <code>-32768</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>physical_max</code></td>
+          <td>
+                <code>number, default</code>
+          </td>
+          <td><p>The physical minimum and maximum should correspond to the
+digital extremes <code>digital_min</code> and <code>digital_max</code> and be
+expressed in the physical dimension <code>physical_dim</code>.
+The values of <code>physical_min</code> and <code>physical_max</code> must be
+different.</p></td>
+          <td>
+                <code>32767</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>digital_min</code></td>
+          <td>
+                <code>number, default</code>
+          </td>
+          <td></td>
+          <td>
+                <code>-32768</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>digital_max</code></td>
+          <td>
+                <code>number, default</code>
+          </td>
+          <td><p>&ldquo;The digital minimum and maximum of each signal should
+specify the extreme values that can occur in the data
+records. These often are the extreme output values of the
+A/D converter.&rdquo; (Kemp et al. 1992). <code>digital_max</code> must be
+larger than <code>digital_min</code>. Together, the two <code>digital_</code> and
+the two <code>physical_</code> values specify the offset and the
+amplification of the signal.</p></td>
+          <td>
+                <code>32767</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>prefiltering</code></td>
+          <td>
+                <code>str, max.<span title="max.length">length</span></code>
+          </td>
+          <td><p>Specifies if this signal was filtered; e.g. for high-pass,
+low-pass, or notch filtering, &lsquo;HP:0.1Hz&rsquo;, &lsquo;LP:75Hz&rsquo;,
+&lsquo;N:50Hz&rsquo;</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>number_of_samples_in_data_record</code></td>
+          <td>
+                <code>integer, default</code>
+          </td>
+          <td><p>The number of 16-bit integers that this signal occupies</p></td>
+          <td>
+                <code>0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sampling_freq</code></td>
+          <td>
+                <code>number, default</code>
+          </td>
+          <td><p>The sampling frequency. This subfield is not part of the EDF
+specification. It is added for convenience.</p></td>
+          <td>
+                <code>0</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <h5 id="edfrw.headers.EdfSignal--notes">Notes</h5>
+<p>Use only ascii characters.</p>
+<p>The data in EDF files are saved as two&rsquo;s complement, 16-bit
+integers. Thus, the range between <code>digital_min</code> and
+<code>digital_max</code> must not exceed 2**16 - 1 = 65535.</p>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.dig_to_phys" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">dig_to_phys</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Convert a digital value to a physical value.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>value</code></td>
+          <td>
+                <code>uint16 or array of uint16_t</code>
+          </td>
+          <td><p>A digital value to convert. EDF digital values are always
+unsigned, 16-bit integers.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>phys</code></td>          <td>
+                <code>float or array of float</code>
+          </td>
+          <td><p>The corresponding physical value.</p></td>
+        </tr>
+    </tbody>
+  </table>
+      <h6 id="edfrw.headers.EdfSignal.dig_to_phys--notes">Notes</h6>
+<p>These equations follow those used in EDFBrowser to convert from
+EDF to ascii (<a href="https://gitlab.com/Teuniz/
+EDFbrowser/-/blob/master/ascii_export.cpp">ascii_export.cpp</a>)</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.digital_max" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">digital_max</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the signal&rsquo;s digital maximum value.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.digital_min" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">digital_min</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the signal&rsquo;s digital minimum value.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.gain" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">gain</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get the signal gain.</p>
+<p>The gain maps physical to digital dimensions. This property is
+calculated automatically whenever the digital or physical
+min/max values are set.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.label" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">label</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the signal label.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.number_of_samples_in_data_record" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">number_of_samples_in_data_record</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the number of samples in each data record.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.phys_to_dig" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">phys_to_dig</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Convert a physical value to a digital value.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>value</code></td>
+          <td>
+                <code>float or array of floats</code>
+          </td>
+          <td><p>The physical value(s) to convert</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>dig</code></td>          <td>
+                <code>uint16_t or array of uint16_t</code>
+          </td>
+          <td><p>The digital value</p></td>
+        </tr>
+    </tbody>
+  </table>
+      <h6 id="edfrw.headers.EdfSignal.phys_to_dig--notes">Notes</h6>
+<p>Follows the equation of a straight line (point-slope form):</p>
+<pre><code>y = m * (x - x1) + y1
+
+x = (y - y1)/m + x1
+</code></pre>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.physical_dim" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">physical_dim</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the signal&rsquo;s physical dimension.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.physical_max" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">physical_max</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the signal&rsquo;s physical maximum.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.physical_min" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">physical_min</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the signal&rsquo;s physical minimum.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.prefiltering" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">prefiltering</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the signal&rsquo;s prefiltering information.</p>
+
+<p><strong>Examples:</strong></p>
+    <p>If the signal was low-pass filtered with a 10 Hz cut-off,</p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">signal</span><span class="o">.</span><span class="n">prefiltering</span> <span class="o">=</span> <span class="s2">&quot;LP:10Hz&quot;</span>
+</code></pre></div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSignal.transducer_type" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">transducer_type</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the transducer type.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edfrw.headers.EdfSubjectId" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">EdfSubjectId</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">sex</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">dob</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Subject (patient) identification.</p>
+<p>The subject (patient) identification is a string (80 characters
+long) in the header of a EDF file than contains information about
+the patient&rsquo;s code, name, sex, and date of birth.</p>
+<p>This class handles that information. It is seldom useful on its own
+but rather as an attribute of <code>class::Header</code>.</p>
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>code</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Patient code</p></td>
+        </tr>
+        <tr>
+          <td><code>sex</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Patient sex</p></td>
+        </tr>
+        <tr>
+          <td><code>dob</code></td>
+          <td>
+                <code>datetime.<span title="datetime.date">date</span></code>
+          </td>
+          <td><p>Patient date of birth</p></td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Patient name</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  
+      <p>Properties that identify the subject.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>code</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td><p>Patient code</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sex</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>dob</code></td>
+          <td>
+                <code>str or datetime, default</code>
+          </td>
+          <td><p>Date of birth. It must be entered as:
+(a) a string in EDF format &lsquo;dd-MMM-yy&rsquo;, as in &lsquo;30-DEC-1999&rsquo;;
+(b) a string in iso format &lsquo;yyyy-mm-dd&rsquo;, as in
+&lsquo;1999-12-30&rsquo;; or
+(c) a datetime object.</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>
+                <code>str, default</code>
+          </td>
+          <td><p>The patient&rsquo;s name</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <p>Any field that is not known can be entered as &lsquo;X&rsquo; (as per the
+EDF standard) or as an empty string &lsquo;&rsquo;.</p>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSubjectId.code" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">code</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the patient&rsquo;s code.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSubjectId.dob" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">dob</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the date of birth (DOB).</p>
+<p>If DOB is not known it must be an empty string &lsquo;&rsquo; or &lsquo;X&rsquo;. If it
+is known, it must be entered as</p>
+<p>(a) a string in EDF format &lsquo;dd-MMM-yy&rsquo;, as in &lsquo;30-DEC-1999&rsquo;;
+(b) a string in iso format &lsquo;yyyy-mm-dd&rsquo;, as in &lsquo;1999-12-30&rsquo;; or
+(c) a datetime object.</p>
+<p>In any case the date will be stored as a datetime.date object.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSubjectId.name" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">name</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the patient&rsquo;s name.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSubjectId.sex" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">sex</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-writable"><code>writable</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get or set the patient&rsquo;s sex.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.headers.EdfSubjectId.to_str" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">to_str</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Return patient ID record as a single string.</p>
+<p>The patient identification record in an EDF file must be a
+string no longer than 80 characters. This function concatenates
+the patient attributes to create such a string. This is useful
+for making the full EDF header record.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>patient_id</code></td>          <td>
+                <code>str</code>
+          </td>
+          <td><p>A string containing patient ID in the format specified by
+EDF.</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../usage/specifications/" class="btn btn-neutral float-left" title="The EDF specification"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../reader/" class="btn btn-neutral float-right" title="Reader">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/antgon/edfrw" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../usage/specifications/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../reader/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

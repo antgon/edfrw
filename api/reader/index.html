@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://edfrw.readthedocs.io/api/reader/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Reader - edfrw</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Reader";
+        var mkdocs_page_input_path = "api/reader.md";
+        var mkdocs_page_url = "/api/reader/";
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> edfrw
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Home</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../..">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../license/">License</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Usage</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/reading/">Reading data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/writing/">Writing data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/specifications/">The EDF specification</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../headers/">Headers</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Reader</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#edfrw.reader.EdfReader">EdfReader</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.reader.EdfReader--notes">Notes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.reader.EdfReader.close">close()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.reader.EdfReader.read_record">read_record()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.reader.EdfReader.read_signal">read_signal()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edfrw.reader.EdfReader.read_signal_from_record">read_signal_from_record()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edfrw.reader.header_fromfile">header_fromfile()</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../writer/">Writer</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">edfrw</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API &raquo;</li><li>Reader</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/antgon/edfrw/edit/master/docs/api/reader.md"
+          class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 id="edfrw.reader" class="doc doc-heading">
+          <code>edfrw.reader</code>
+
+
+</h2>
+
+  <div class="doc doc-contents first">
+  
+      <p>Tools for reading data from European Data Format (EDF) files.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edfrw.reader.EdfReader" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">EdfReader</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+      <p class="doc doc-class-bases">
+        Bases: <code>object</code></p>
+
+  
+      <p>Open an EDF file for reading.</p>
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>header</code></td>
+          <td>
+                <code>object of `class::EdfHeader`</code>
+          </td>
+          <td><p>EDF file header.</p></td>
+        </tr>
+        <tr>
+          <td><code>filename</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Path to edf file.</p></td>
+        </tr>
+        <tr>
+          <td><code>signals</code></td>
+          <td>
+                <code>list</code>
+          </td>
+          <td><p>List of signals in EDF file.</p></td>
+        </tr>
+        <tr>
+          <td><code>duration_s</code></td>
+          <td>
+                <code>number</code>
+          </td>
+          <td><p>Duration of the recording in seconds.</p></td>
+        </tr>
+    </tbody>
+  </table>
+      <h5 id="edfrw.reader.EdfReader--notes">Notes</h5>
+<p>This class currently only works for reading EDF files. Data from
+EDF+C files can also be read but the &ldquo;EDF Annotations&rdquo; signal will
+not be properly parsed. EDF+D files are not supported.</p>
+
+  
+      <p>Open and EDF file for reading.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>filename</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Path to the EDF file.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.reader.EdfReader.close" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">close</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Close the file.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.reader.EdfReader.read_record" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">read_record</span><span class="p">(</span><span class="n">rec_number</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Return data from one record.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>rec_number</code></td>
+          <td>
+                <code>integer</code>
+          </td>
+          <td><p>Record number to read data from (index starts from 0).</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>samples</code></td>          <td>
+                <code>array of int16</code>
+          </td>
+          <td><p>Data samples in record, in the original order and format as
+that stored in the EDF file (i.e. all samples from signal 0
+followed by all samples from signal 1, etc.)</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.reader.EdfReader.read_signal" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">read_signal</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">from_second</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">to_second</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Read a signal from an EDF file.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>signal</code></td>
+          <td>
+                <code>integer or string</code>
+          </td>
+          <td><p>Signal to read. If an integer, it is the signal index
+(starting from 0); if a string it is the name (label) of
+the signal.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>from_second</code></td>
+          <td>
+                <code>numeric, default</code>
+          </td>
+          <td><p>Time in seconds to read data from.</p></td>
+          <td>
+                <code>0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>to_second</code></td>
+          <td>
+                <code>numeric, default</code>
+          </td>
+          <td><p>Time in seconds to read data to.</p></td>
+          <td>
+                <code>np.Inf</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>time, samples</code>
+          </td>
+          <td><p>Time (in seconds) and signal data samples.</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">edffile</span> <span class="o">=</span> <span class="n">EdfReader</span><span class="p">(</span><span class="s2">&quot;myfile.edf&quot;</span><span class="p">)</span>
+</code></pre></div>
+    <p>Assuming this file has a signal labelled &ldquo;ADC&rdquo;, read that
+signal from time 20 to time 750 seconds.</p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="n">edffile</span><span class="o">.</span><span class="n">read_signal</span><span class="p">(</span><span class="s2">&quot;ADC&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">750</span><span class="p">)</span>
+</code></pre></div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edfrw.reader.EdfReader.read_signal_from_record" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">read_signal_from_record</span><span class="p">(</span><span class="n">sig_number</span><span class="p">,</span> <span class="n">rec_number</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Read a signal in a data record.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>sig_number</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>Number of the signal to read (starts from 0).</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>rec_number</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>Record number (starts from 0).</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>time, samples</code>
+          </td>
+          <td><p>Time in seconds and signal data samples.</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="edfrw.reader.header_fromfile" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">header_fromfile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Read the header from an EDF file.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>filename</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Path to the EDF file</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>header</code></td>          <td>
+                <code>object of </code>
+          </td>
+          <td></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../headers/" class="btn btn-neutral float-left" title="Headers"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../writer/" class="btn btn-neutral float-right" title="Writer">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/antgon/edfrw" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../headers/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../writer/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

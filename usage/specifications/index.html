@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://edfrw.readthedocs.io/usage/specifications/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>The EDF specification - edfrw</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "The EDF specification";
+        var mkdocs_page_input_path = "usage/specifications.md";
+        var mkdocs_page_url = "/usage/specifications/";
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> edfrw
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Home</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../..">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../license/">License</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Usage</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../reading/">Reading data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../writing/">Writing data</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">The EDF specification</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-header">The Header</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#header-record">Header record</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#signal-record">Signal record</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-record">Data record</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#converting-digital-samples-to-physical-dimensions">Converting digital samples to physical dimensions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#example-1">Example 1</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#example-2">Example 2</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/headers/">Headers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/reader/">Reader</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/writer/">Writer</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">edfrw</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Usage &raquo;</li><li>The EDF specification</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/antgon/edfrw/edit/master/docs/usage/specifications.md"
+          class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="overview-of-edf-specifications">Overview of EDF specifications</h1>
+<p>This section presents a brief overview of the EDF specifications. This
+overview should help understand how to use the various functions and
+classes in this <strong>edfrw</strong> library. The full EDF specifications can be
+found <a href="https://www.edfplus.info/specs/index.html">here</a></p>
+<p>EDF files consist of a header (ascii) that describes the contents of the
+file and the experimental settings. The data (int16) are stored after
+the header in data records.</p>
+<h2 id="the-header">The Header</h2>
+<p>The first 256 bytes in an EDF file are the header, which contains
+information about the patient, date and time of data acquisition, etc.
+This is followed by another 256 bytes for each signal acquired. Signal
+header(s) contain the details about the name of the signals, the
+hardware used, and values to allow the transformation of raw (int16)
+data values into physical values (e.g. volts). Thus, the length of the
+full header (i.e. the &lsquo;header record&rsquo;) equals 256 + (number_of_signals *
+256). The header record is <code>ascii</code> only, and contains the following
+fields:</p>
+<h3 id="header-record">Header record</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th align="right">Size</th>
+<th align="right">Position</th>
+<th align="right">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>version</td>
+<td align="right">8</td>
+<td align="right">0</td>
+<td align="right">[1]</td>
+</tr>
+<tr>
+<td>patient_id</td>
+<td align="right">80</td>
+<td align="right">8</td>
+<td align="right">[2]</td>
+</tr>
+<tr>
+<td>recording_id</td>
+<td align="right">80</td>
+<td align="right">88</td>
+<td align="right">[3]</td>
+</tr>
+<tr>
+<td>startdate</td>
+<td align="right">8</td>
+<td align="right">168</td>
+<td align="right">dd.mm.yy</td>
+</tr>
+<tr>
+<td>starttime</td>
+<td align="right">8</td>
+<td align="right">176</td>
+<td align="right">hh.mm.ss</td>
+</tr>
+<tr>
+<td>number_of_bytes_in_header</td>
+<td align="right">8</td>
+<td align="right">184</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td>reserved</td>
+<td align="right">44</td>
+<td align="right">192</td>
+<td align="right">[4]</td>
+</tr>
+<tr>
+<td>number_of_data_records</td>
+<td align="right">8</td>
+<td align="right">236</td>
+<td align="right">&lsquo;nr&rsquo;</td>
+</tr>
+<tr>
+<td>duration_of_data_record</td>
+<td align="right">8</td>
+<td align="right">244</td>
+<td align="right">in seconds</td>
+</tr>
+<tr>
+<td>number_of_signals</td>
+<td align="right">4</td>
+<td align="right">252</td>
+<td align="right">&lsquo;ns&rsquo;</td>
+</tr>
+<tr>
+<td>(total)</td>
+<td align="right">256</td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes</strong></p>
+<ol>
+<li>
+<p>&lsquo;version&rsquo; is always &lsquo;0&rsquo;.</p>
+</li>
+<li>
+<p>&lsquo;patient_id&rsquo; must consist of 4 space-separated strings:
+   Code Sex DOB Name, where</p>
+</li>
+</ol>
+<ul>
+<li>Code is the patient code</li>
+<li>Sex is M, F, or X</li>
+<li>DOB is date of birth in format dd-MMM-yyyy</li>
+<li>Name is patient&rsquo;s name</li>
+<li>(If a subfield is not known, replace with an X)</li>
+</ul>
+<ol start="3">
+<li>&lsquo;recording_id&rsquo; is a string <code>'Startdate dd-MMM-yyyy ExpID InvestigID Equipment'</code>, where</li>
+</ol>
+<ul>
+<li>The text &ldquo;Startdate&rdquo;</li>
+<li>dd-MMM-yyyy, the actual start date</li>
+<li>ExpID, code of the experiment/investigation</li>
+<li>InvestigID, code of responsible investigator</li>
+<li>Equipment, code of equipment used</li>
+<li>Additional optional subfields may follow the ones above</li>
+<li>Example: &lsquo;Startdate 02-MAR-2002 PSG-1234=2002 NN Telemetry03&rsquo;</li>
+</ul>
+<ol start="4">
+<li>&lsquo;reserved&rsquo;: empty for EDF; &lsquo;EDF+C&rsquo; for continuous recording; &lsquo;EDF+D&rsquo;
+   if the recording is interrupted.</li>
+</ol>
+<h3 id="signal-record">Signal record</h3>
+<p>After the main header there is information about each signal acquired.
+This information forms part of the &lsquo;header record&rsquo; in the specifications
+but it is helpful to look at it separately:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th align="right">Size</th>
+<th align="right">Position</th>
+<th align="right">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>label</td>
+<td align="right">16</td>
+<td align="right">0</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td>transducer</td>
+<td align="right">80</td>
+<td align="right">16</td>
+<td align="right">[1]</td>
+</tr>
+<tr>
+<td>physical_dim</td>
+<td align="right">8</td>
+<td align="right">96</td>
+<td align="right">[2]</td>
+</tr>
+<tr>
+<td>physical_min</td>
+<td align="right">8</td>
+<td align="right">104</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td>physical_max</td>
+<td align="right">8</td>
+<td align="right">112</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td>digital_min</td>
+<td align="right">8</td>
+<td align="right">120</td>
+<td align="right">[3]</td>
+</tr>
+<tr>
+<td>digital_max</td>
+<td align="right">8</td>
+<td align="right">128</td>
+<td align="right">[3]</td>
+</tr>
+<tr>
+<td>prefiltering</td>
+<td align="right">80</td>
+<td align="right">136</td>
+<td align="right">[4]</td>
+</tr>
+<tr>
+<td>number_of_samples</td>
+<td align="right">8</td>
+<td align="right">216</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td>reserved</td>
+<td align="right">32</td>
+<td align="right">224</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td>(total)</td>
+<td align="right">256</td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes</strong></p>
+<ol>
+<li>
+<p>&lsquo;transducer&rsquo; type, e.g. &lsquo;thermistor&rsquo;.</p>
+</li>
+<li>
+<p>&lsquo;physical_dim&rsquo; (physical dimension, e.g. &lsquo;uV&rsquo;) must start with a
+   prefix (in this example u) followed by the basic dimension (in this
+   example V). For full details see the <a href="http://www.edfplus.info/specs/edftexts.html">EDF full
+   specifications</a>.</p>
+</li>
+<li>
+<p>The digital range must be somewhere between -32768 and 32767 (because
+   data samples are 16-bit signed integers).</p>
+</li>
+<li>
+<p>&lsquo;prefiltering&rsquo;: e.g. for high-pass, low-pass and notch filters:
+   &lsquo;HP:0.1 Hz LP:75 Hz N:50 Hz&rsquo;.</p>
+</li>
+</ol>
+<p>Thus, after the main header there are 256 bytes for each signal
+acquired. It is worth noting that each field in the signal record holds
+the values for all signals (rather than the header storing one full
+signal record, then a second full signal record, etc). That is, if e.g.
+two signals are acquired, then there will be two consecutive &lsquo;label&rsquo;
+fields (16 + 16 bytes), then two consecutive &lsquo;transducer&rsquo; fields (80 +
+80 bytes), then two &lsquo;physical_dim&rsquo; fields (8 + 8 bytes), etc.</p>
+<h2 id="data-record">Data record</h2>
+<p>Data records follow after the header record. Here, data samples (of type
+int16) are stored in blocks (the <em>data record</em>). Each block contains the
+samples acquired during a period of time specified in the header as
+&lsquo;duration_of_data_record&rsquo;, and the total number of blocks in the file
+are &lsquo;number_of_data_records&rsquo;. Note that EDF allows the acquisition of
+signals at different sampling rates; the number of samples per signal in
+each data block is in the signal header
+(&lsquo;number_of_samples_in_data_record&rsquo;).</p>
+<p>For example, two signals <code>signal_A</code> and <code>signal_B</code> are acquired at 100
+Hz and 5 Hz respectively. The data are saved every 20 seconds (i.e.
+<code>duration_of_data_record = 20</code>). Thus, one block of data (a data record)
+will consist of 2000 samples (number_of_samples_in_data_record = 100 Hz
+times 20 seconds = 2000) from <code>signal_A</code> followed by 100 samples
+(number_of_samples_in_data_record = 5 Hz times 20 seconds = 100) from
+<code>signal_B</code>. If the header indicates that there are 70 such blocks
+(<code>number_of_data_records = 70</code>), then the total duration of the
+recording would be 70 x 20 = 1400 seconds (<code>number_of_data_records</code>
+x <code>duration_of_data_record</code>).</p>
+<h3 id="converting-digital-samples-to-physical-dimensions">Converting digital samples to physical dimensions</h3>
+<p>Data samples are stored as 16-bit (2-byte signed, little endian, two&rsquo;s
+complement) integers. An easy way to convert those values to their
+physical equivalent is by using the equation for a straight line with
+the signal information stored in the
+<a class="autorefs autorefs-internal" href="../../api/headers/#edfrw.headers.EdfSignal">EdfSignal</a> record.</p>
+<p>(<strong>Note</strong> that this conversion is done automatically by the function
+<a class="autorefs autorefs-internal" href="../../api/headers/#edfrw.headers.EdfSignal.dig_to_phys">edfrw.headers.EdfSignal.dig_to_phys</a> so typically it is not necessary
+to worry about this. The procedure is documented here for completeness.)</p>
+<p>The slope <em>m</em> (or gain) of a straight line is the ratio of change in <em>y</em>
+by change in <em>x</em>:</p>
+<pre><code class="language-python">m = (y1 - y0) / (x1 - x0)
+</code></pre>
+<p>and if the slope <em>m</em> and the intercept <em>b</em> are known, then the line can
+be described by:</p>
+<pre><code class="language-python">y = m * (x + b)
+</code></pre>
+<p>It can be seen that the raw int16 data values stored in an EDF file
+correspond to <em>x</em> in that equation, that the physical values that we are
+looking for are <em>y</em>, and that these two are related by the parameters
+set in the <a class="autorefs autorefs-internal" href="../../api/headers/#edfrw.headers.EdfSignal">EdfSignal</a> record.</p>
+<p>The slope can be calculated as:</p>
+<pre><code class="language-python">m = (y1 - y0) / (x1 - x0)
+m = (physical_max - physical_min) / (digital_max - digital_min)
+</code></pre>
+<p>and the offset (or intercept) <em>b</em> will be the physical_min value. From
+these the physical values can be obtained using  the line equation:</p>
+<pre><code class="language-python">b = offset = physical_max / m - digital_max
+y = m * (x + b)
+physical_value = m * (digital_value + b)
+</code></pre>
+<h4 id="example-1">Example 1</h4>
+<p>An EDF file contains data obtained after measuring voltage with the adc
+from the mbed LPC1768. The native EDF data are stored as 2-byte integer
+digital samples. The mbed has an 12-bit adc, so its digital range is
+from 0 to 4095, and the reference voltage in the mbed is 3.3 V, so the
+physical range that the adc can measure is 0 V to 3.3 V. Thus, the
+header record in such EDF file would be:</p>
+<pre><code class="language-python">physical_dim = 'V'
+physical_min = 0
+physical_max = 3.3
+digital_min = 0
+digital_max = 4095
+</code></pre>
+<p>These parameters are used to calculate the gain <em>m</em> (slope):</p>
+<pre><code class="language-python">m = (y1 - y0) / (x1 - x0)
+m = (physical_max - physical_min) / (digital_max - digital_min)
+m = (3.3 - 0) / (4095 - 0)
+m = 0.0008
+b = physical_max / m - digital_max
+b = 3.3 / 0.0008 - 4095
+b = 0.5
+</code></pre>
+<p>and with that the physical values (voltage):</p>
+<pre><code class="language-python">physical_value = m * (digital_value + b)
+physical_value = 0.0008 * (digital_value + 0.5)
+</code></pre>
+<p>digital value of 2048 will represent 0.0008 * (2048 + 0) = 1.65 volts,
+as expected.</p>
+<h4 id="example-2">Example 2</h4>
+<p>EEG data are acquired using a commercial system. The manufacturer
+explains in the documentation that the analog outputs from their
+hardware are signals that range between 0 and 5 volts, and are centred
+at 2.048 V, so:</p>
+<pre><code class="language-python">physical_dim = 'V'
+physical_min = 0 - 2.048 = -2.048
+physical_max = 5 - 2.048 = 2.952
+</code></pre>
+<p>If these signals were acquired with a 14-bit ADC, then:</p>
+<pre><code class="language-python">digital_min = 0
+digital_max = 2**14 - 1 = 16383
+</code></pre>
+<p>and thus:</p>
+<pre><code class="language-python">m = (physical_max - physical_min) / (digital_max - digital_min)
+m = (2.952 + 2.048) / (16383 - 0)
+m = 5 / 16383 = 0.00031
+b = offset = physical_max / m - digital_max = -23093.4768
+y = m * x + b
+physical_value = 0.00031 * (digital_value + -23093.4768)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../writing/" class="btn btn-neutral float-left" title="Writing data"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../api/headers/" class="btn btn-neutral float-right" title="Headers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/antgon/edfrw" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../writing/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../api/headers/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
