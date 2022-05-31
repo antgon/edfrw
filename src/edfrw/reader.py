@@ -1,18 +1,5 @@
 """
 Tools for reading data from European Data Format (EDF) files.
-
-.. rubric:: Classes
-.. autosummary::
-    :toctree: generated
-
-    EdfReader
-
-.. rubric:: Functions
-.. autosummary::
-    :toctree: generated
-
-    header_fromfile
-
 """
 
 from collections import deque
@@ -112,18 +99,6 @@ class EdfReader(object):
         List of signals in EDF file.
     duration_s : number
         Duration of the recording in seconds.
-
-
-    Methods
-    -------
-    read_record(rec_number)
-        Read all data contained in one record.
-    read_signal(signal, from_second=0, to_second=np.Inf)
-        Read a signal.
-    read_signal_from_record(sig_number, rec_number)
-        Read a signal in a record.
-    close()
-        Close the file.
 
     Notes
     -----

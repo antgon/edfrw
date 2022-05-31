@@ -1,11 +1,5 @@
 """
 Write data to files in European Data Format (EDF).
-
-.. rubric:: Classes
-.. autosummary::
-    :toctree: generated
-
-    EdfWriter
 """
 
 
@@ -22,19 +16,6 @@ class EdfWriter(object):
         How often to write data to the EDF file.
     closed : bool
         Whether the file has been closed.
-
-    Methods
-    -------
-    close()
-        Close the file.
-    flush()
-        Flush data to disk.
-    update_number_of_records()
-        Update the file header with current number of records.
-    write_data_record(buffer)
-        Write a data record.
-    write_header()
-        Write the EDF header.
     """
 
     # Size and position in the header of number_of_data_records (nr)

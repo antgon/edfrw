@@ -1,16 +1,5 @@
 """
 Manage EDF file headers.
-
-.. rubric:: Classes
-
-.. autosummary::
-    :toctree: generated
-    
-    EdfSubjectId
-    EdfRecordingId
-    EdfSignal
-    EdfHeader
-
 """
 
 import warnings
@@ -47,11 +36,6 @@ class EdfSubjectId:
         Patient date of birth
     name : str
         Patient name
-
-    Methods
-    -------
-    to_str()
-        Return attributes as single string, as required by EDF
     """
 
     _len = 80
@@ -215,11 +199,6 @@ class EdfRecordingId:
     experiment_id : str
     investigator_id : str
     startdate : datetime.date
-
-    Methods
-    -------
-    to_str()
-        Concatenate attributes into a string, as per EDF format
     """
     _len = 80
     __slots__ = ['_startdate', '_experiment_id', '_investigator_id',
@@ -410,15 +389,6 @@ class EdfSignal:
     reserved : str
     sampling_freq : number
     transducer_type : str
-
-    Methods
-    -------
-    dig_to_phys(value)
-        Convert a digital value to a physical value
-    phys_to_dig(value)
-        Convert a physical value to a digital value
-    print()
-        Display a summary of the signal
 
     Examples
     --------
@@ -656,8 +626,8 @@ class EdfSignal:
         """
         Get or set the signal's prefiltering information.
 
-        Example
-        -------
+        Examples
+        --------
         If the signal was low-pass filtered with a 10 Hz cut-off,
         >>> signal.prefiltering = "LP:10Hz"
         """
@@ -730,8 +700,8 @@ class EdfSignal:
         phys : float or array of float
             The corresponding physical value.
 
-        Note
-        ----
+        Notes
+        -----
         These equations follow those used in EDFBrowser to convert from
         EDF to ascii ([ascii_export.cpp](https://gitlab.com/Teuniz/
         EDFbrowser/-/blob/master/ascii_export.cpp))
@@ -788,11 +758,6 @@ class EdfHeader:
     starttime : datetime.time
     subject_id : object of class EdfSubjectId
     version : str, always '0'
-
-    Methods
-    -------
-    pack()
-        Returns the header as a bytes object
     """
     # Fields and sizes (i.e. number of bytes) as per the EDF
     # specification.
@@ -1036,7 +1001,7 @@ class EdfHeader:
         Set or get the recording start date.
 
         Parameters
-        ----------
+        ----------       
         value : str or datetime
             It must be either
             (a) a string 'yyyy-mm-dd', e.g. '2016-10-25', or
@@ -1044,7 +1009,7 @@ class EdfHeader:
             (c) a datetime object
 
         Returns
-        -------
+        -------        
         startdate : datetime object
         """
         return self._startdate
