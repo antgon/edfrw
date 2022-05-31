@@ -45,6 +45,10 @@
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href=".">Overview</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#links">Links</a>
     </li>
     </ul>
@@ -96,12 +100,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="edfrw">edfrw</h1>
-<p>A Python library for reading and writing European Data Format (EDF)
-files.</p>
+                <h1 id="edfrw-documentation">edfrw documentation</h1>
+<p><strong>edfrw</strong> is a Python library for reading and writing European Data
+Format (EDF) files.</p>
 <p>EDF is a format for data storage that is particularly useful for
 recording biological and physical signals. The format is described in
 detail on the <a href="http://www.edfplus.info">EDF website</a>.</p>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li><a href="https://www.python.org/">Python 3</a> (&gt;= 3.5)</li>
+<li>A recent version of <a href="https://numpy.org/">NumPy</a></li>
+</ul>
+<p>In addition, if you want to try the examples, you may want to install
+<a href="https://matplotlib.org/">Matplotlib</a> for plotting the data.</p>
+<h2 id="installation">Installation</h2>
+<p><strong>edfrw</strong> is available on <a href="https://pypi.org/">PyPI</a>. Thus, the easiest
+way to install is with <code>pip</code>:</p>
+<pre><code>python -m pip install edfrw
+</code></pre>
+<p>Alternatively, you can download the code from
+<a href="https://github.com/antgon/edfrw">GitHub</a> and place it somewhere on your
+Python path, or install locally with <code>pip</code>.</p>
 <h2 id="links">Links</h2>
 <ul>
 <li>The <a href="https://github.com/antgon/edfrw">source code</a> is on GitHub.</li>
