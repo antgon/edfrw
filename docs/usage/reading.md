@@ -1,6 +1,4 @@
-# Usage
-
-## Reading a file
+# Reading data from an EDF file
 
 ```python
 from edfrw import open_edf

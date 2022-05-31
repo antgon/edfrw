@@ -2,5 +2,5 @@ __pycache__
 *.swp
 
 dist/
-docs/build/
+site/
 edfrw.egg-info/
