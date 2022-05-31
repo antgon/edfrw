@@ -8,6 +8,5 @@ http://www.edfplus.info/.
 
 ## Links
 
-* The code is licensed under the [GNU General Public License](http://www.gnu.org/licenses/gpl.html)
-* The [source code](https://github.com/antgon/edfrw) is on GitHub
-* The [documentation](https://edfrw.readthedocs.io) is available on ReadTheDocs
+* The documentation is available [here](https://antgon.github.io/edfrw/).
+* The code is licensed under the [GNU General Public License](http://www.gnu.org/licenses/gpl.html).

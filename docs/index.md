@@ -10,7 +10,4 @@ detail on the [EDF website](http://www.edfplus.info).
 ## Links
 
 * The [source code](https://github.com/antgon/edfrw) is on GitHub.
-* The [documentation](https://edfrw.readthedocs.io) is available on ReadTheDocs.
 * The code is licensed under the [GNU General Public License](http://www.gnu.org/licenses/gpl.html).
-
-
