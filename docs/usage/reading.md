@@ -3,16 +3,16 @@
 ## Simple use
 
 To read data from and EFD file, simply open the file and read the signal
-of interest. To illustrate this, a sample EDF test file
-("test_generator_2") was downloaded from [EDFBrowser
-testfiles](https://www.teuniz.net/edf_bdf_testfiles/), and Python was
-run from an interactive `ipython` shell with `matplotlib` for plotting.
+of interest. To illustrate this, the Python code that follows uses a
+sample EDF test file ("test_generator_2") downloaded from [EDFBrowser
+testfiles](https://www.teuniz.net/edf_bdf_testfiles/). The code can be
+run on an interactive `ipython` shell with `matplotlib` for plotting.
 
 ```python
 # Import the relevant edfrw function.
 from edfrw import open_edf
 
-# Open the file in reading (default) mode.
+# Open the file in reading mode (the default).
 >>> edf = open_edf('test_generator_2.edf')
 
 # Use `print` to display a summary of the file.
@@ -28,7 +28,7 @@ Nr of signals:      12
 Signal labels:      ['squarewave', 'ramp', 'pulse', 'ECG', 'noise', 'sine 1 Hz', 'sine 8 Hz', 'sine 8.5 Hz', 'sine 15 Hz', 'sine 17 Hz', 'sine 50 Hz', 'EDF Annotations']
 
 # `print` also works on the record header. Try e.g.
-# print(f.header)
+# print(edf.header)
 
 # Read and plot the first 5 seconds of data stored in the signal
 # "sine 1 Hz".
@@ -57,7 +57,7 @@ its index (starting from 0). Thus, to read a few seconds of signal
 
 ## Signal information
 
-EDF signals are stored in a list in the main edfrw file:
+EDF signals are stored in a list in the main edf file handle:
 
 ```python
 >>> edf = open_edf('test_generator_2.edf')
@@ -76,8 +76,8 @@ EDF signals are stored in a list in the main edfrw file:
  <EDFSignal EDF Annotations>]
 ```
 
-This can be used to inspect signals individually. For example, to see
-the properties of the first signal (i.e. signal 0),
+This list can be used to inspect signals individually. For example, to
+see the properties of the first signal (i.e. signal 0),
 
 ```python
 >>> sig = edf.signals[0]
@@ -95,6 +95,48 @@ reserved
 sampling_freq                    200.0
 gain                             0.030518043793392843
 ```
+
+Moreover, this information is useful for e.g. labelling the plots.
+Consider the following script for reading and plotting (with
+[Matplotlib](https://matplotlib.org)) a few seconds of data from three
+different signals from the same test file as above:
+
+```python
+import matplotlib.pyplot as plt
+
+from edfrw import open_edf
+
+# Indices of the three signals of interest.
+signals = [2, 3, 5]
+
+# Time range (in seconds).
+time_from = 15.3
+time_to = 17.8
+
+# Open the EDF file and make a new figure.
+edf = open_edf('test_generator_2.edf')
+fig, axs = plt.subplots(3, 1, sharex=True)
+
+for (i, signal_index) in enumerate(signals):    
+    # Read signal data and plot.
+    x, y = edf.read_signal(signal_index, time_from, time_to)
+    axs[i].plot(x, y)
+    
+    # Label the plots with the relevant units and title.
+    sig = edf.signals[signal_index]
+    axs[i].set_ylabel(sig.physical_dim)
+    axs[i].set_title(sig.label)
+edf.close()
+
+# Time units in EDF is always seconds.
+axs[-1].set_xlabel("Seconds")
+
+# Display
+plt.tight_layout()
+plt.show()
+```
+
+![Three plots](../img/example_three_plots.png)
 
 ## Additional functions
 
