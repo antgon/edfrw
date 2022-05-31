@@ -105,19 +105,18 @@
                 <h1 id="reading-data-from-an-edf-file">Reading data from an EDF file</h1>
 <h2 id="simple-use">Simple use</h2>
 <p>To read data from and EFD file, simply open the file and read the signal
-of interest.</p>
-<p>To illustrate this, a sample EDF test file (&ldquo;test_generator_2&rdquo;) was
-downloaded from <a href="https://www.teuniz.net/edf_bdf_testfiles/">EDFBrowser
-testfiles</a> and Python was run
-from an interactive <code>ipython</code> shell with <code>matplotlib</code> for plotting.</p>
+of interest. To illustrate this, a sample EDF test file
+(&ldquo;test_generator_2&rdquo;) was downloaded from <a href="https://www.teuniz.net/edf_bdf_testfiles/">EDFBrowser
+testfiles</a>, and Python was
+run from an interactive <code>ipython</code> shell with <code>matplotlib</code> for plotting.</p>
 <pre><code class="language-python"># Import the relevant edfrw function.
 from edfrw import open_edf
 
 # Open the file in reading (default) mode.
-&gt;&gt;&gt; f = open_edf('test_generator_2.edf')
+&gt;&gt;&gt; edf = open_edf('test_generator_2.edf')
 
-# Use print to display a summary of the file contents.
-&gt;&gt;&gt; print(f)
+# Use `print` to display a summary of the file.
+&gt;&gt;&gt; print(edf)
 Subject ID:         X X X X
 Recording ID:       Startdate 10-Dec-2009 X X test_generator
 Start date:         2009-12-10
@@ -128,54 +127,72 @@ Dur of data record: 1.0
 Nr of signals:      12
 Signal labels:      ['squarewave', 'ramp', 'pulse', 'ECG', 'noise', 'sine 1 Hz', 'sine 8 Hz', 'sine 8.5 Hz', 'sine 15 Hz', 'sine 17 Hz', 'sine 50 Hz', 'EDF Annotations']
 
+# `print` also works on the record header. Try e.g.
+# print(f.header)
+
 # Read and plot the first 5 seconds of data stored in the signal
 # &quot;sine 1 Hz&quot;.
-&gt;&gt;&gt; x, y = f.read_signal(&quot;sine 1 Hz&quot;, from_second=0, to_second=5)
+&gt;&gt;&gt; x, y = edf.read_signal(&quot;sine 1 Hz&quot;, from_second=0, to_second=5)
 &gt;&gt;&gt; plot(x, y)
 
-# CLose the file if it is no longer required.
-&gt;&gt;&gt; f.close()
+# Close the file if it is no longer required.
+&gt;&gt;&gt; edf.close()
 </code></pre>
 <p><img alt="Sine" src="../../img/example_sine.png" /></p>
-<p>Instead of using the singal name, it is possible to refer to a signal by
+<p>Instead of using the signal name, it is possible to refer to a signal by
 its index (starting from 0). Thus, to read a few seconds of signal
  &ldquo;ramp&rdquo;, which is in position 1:</p>
-<pre><code class="language-python">&gt;&gt;&gt; f = open_edf('test_generator_2.edf')
-&gt;&gt;&gt; x, y = f.read_signal(1, from_second=10.5, to_second=12.2)
-&gt;&gt;&gt; f.close()
+<pre><code class="language-python">&gt;&gt;&gt; edf = open_edf('test_generator_2.edf')
+&gt;&gt;&gt; x, y = edf.read_signal(1, from_second=10.5, to_second=12.2)
+&gt;&gt;&gt; edf.close()
 &gt;&gt;&gt; plot(x, y)
 </code></pre>
 <p><img alt="Ramp" src="../../img/example_ramp.png" /></p>
 <h2 id="signal-information">Signal information</h2>
-<p>EDF signals are stored in a list in the main edfrw file. This list can
-be used to inspect these signals individually. For example, to see the
-properties of the first signal (i.e. signal 0) the example file,</p>
-<pre><code class="language-python">&gt;&gt;&gt; f = open_edf('test_generator_2.edf')
-&gt;&gt;&gt; sig = f.signals[0]
-&gt;&gt;&gt; sig.print()
-label                             squarewave
-transducer_type                   
-physical_dim                      uV
-physical_min                      -1000.0
-physical_max                      1000.0
-digital_min                       -32768
-digital_max                       32767
-prefiltering                      
-number_of_samples_in_data_record  200
-reserved                          
-sampling_freq                     200.0
-gain                              0.030518043793392843
+<p>EDF signals are stored in a list in the main edfrw file:</p>
+<pre><code class="language-python">&gt;&gt;&gt; edf = open_edf('test_generator_2.edf')
+&gt;&gt;&gt; edf.signals
+[&lt;EDFSignal squarewave&gt;,
+ &lt;EDFSignal ramp&gt;,
+ &lt;EDFSignal pulse&gt;,
+ &lt;EDFSignal ECG&gt;,
+ &lt;EDFSignal noise&gt;,
+ &lt;EDFSignal sine 1 Hz&gt;,
+ &lt;EDFSignal sine 8 Hz&gt;,
+ &lt;EDFSignal sine 8.5 Hz&gt;,
+ &lt;EDFSignal sine 15 Hz&gt;,
+ &lt;EDFSignal sine 17 Hz&gt;,
+ &lt;EDFSignal sine 50 Hz&gt;,
+ &lt;EDFSignal EDF Annotations&gt;]
+</code></pre>
+<p>This can be used to inspect signals individually. For example, to see
+the properties of the first signal (i.e. signal 0),</p>
+<pre><code class="language-python">&gt;&gt;&gt; sig = edf.signals[0]
+&gt;&gt;&gt; print(sig)
+label                            squarewave
+transducer_type                  
+physical_dim                     uV
+physical_min                     -1000.0
+physical_max                     1000.0
+digital_min                      -32768
+digital_max                      32767
+prefiltering                     
+number_of_samples_in_data_record 200
+reserved                         
+sampling_freq                    200.0
+gain                             0.030518043793392843
 </code></pre>
 <h2 id="additional-functions">Additional functions</h2>
 <p>The module <a class="autorefs autorefs-internal" href="../../api/reader/#edfrw.reader">edfrw.reader</a> provides additional functions for reading
 EDF data. These are probably most useful for larger applications where
-it may be convenient to read raw data from each block (record), or to iterate
-data blocks, etc.</p>
-<p>The function <code>read_record</code> reads data from a given record (indexed
-from 0) and returns it raw, as stored by edf. The recipient then must
-unpack and convert the data samples as required.</p>
-<pre><code class="language-python">&gt;&gt;&gt; f = open_edf('test_generator_2.edf')
-&gt;&gt;&gt; samples = f.read_record(0)
+it may be convenient to read raw data from each block (i.e. data
+record), or to iterate along data blocks, etc.</p>
+<p>The function <a class="autorefs autorefs-internal" href="../../api/reader/#edfrw.reader.EdfReader.read_record"><code>read_record</code></a> reads
+data from a given record (indexed from 0) and returns it raw, as stored
+by edf. The recipient then must unpack and convert the data samples as
+required.</p>
+<pre><code class="language-python">&gt;&gt;&gt; edf = open_edf('test_generator_2.edf')
+&gt;&gt;&gt; samples = edf.read_record(0)
 
 &gt;&gt;&gt; size(samples)
 4502
@@ -186,10 +203,11 @@ b'\xcc\x0c\xcc\x0c\xcc\x0c\xcc\x0c\xcc\x0c'
 &gt;&gt;&gt; type(samples)
 bytes
 </code></pre>
-<p>A related function, <code>read_signal_from_record</code> also reads data from only
-one edf data block (i.e. a record), but unpacks the data and converts to
-physical values. It may be used as the building block for larger EDF
-reading applications.</p>
+<p>A related function,
+<a class="autorefs autorefs-internal" href="../../api/reader/#edfrw.reader.EdfReader.read_signal_from_record"><code>read_signal_from_record</code></a>
+also reads data from only one edf data block (i.e. a record), but
+unpacks the data and converts to physical values. It may be used as the
+building block for larger EDF reading applications.</p>
 <h2 id="limitations">Limitations</h2>
 <p>Currently, <strong>edfrw</strong> only works for reading EDF files. Data from EDF+C
 (i.e. continuous recording with annotations) files can also be read but
