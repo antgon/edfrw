@@ -7,9 +7,9 @@ nav:
     - Overview: index.md
     - License: license.md
   - Usage:
-    - The EDF specification: usage/specifications.md
     - Reading data: usage/reading.md
     - Writing data: usage/writing.md
+    - The EDF specification: usage/specifications.md
   - API:
     - Headers: api/headers.md 
     - Reader: api/reader.md

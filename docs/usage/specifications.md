@@ -3,21 +3,12 @@
 
 This section presents a brief overview of the EDF specifications. This
 overview should help understand how to use the various functions and
-classes in this ``edfrw`` library.
-
-From the [EDF's website](http://www.edfplus.info):
-
-> The European Data Format (EDF) is a simple and flexible format for
-> exchange and storage of multichannel biological and physical signals.
+classes in this **edfrw** library. The full EDF specifications can be
+found [here](https://www.edfplus.info/specs/index.html)
 
 EDF files consist of a header (ascii) that describes the contents of the
 file and the experimental settings. The data (int16) are stored after
-the header. The main aspects of the specification are described in this
-section, which is useful reading for understanding the classes and
-functions that make up the [edfrw
-library](https://github.com/antgon/edfrw). For more about the European
-Data Format and full specifications, see
-http://www.edfplus.info/specs/index.html.
+the header in data records.
 
 ## The Header
 
@@ -61,7 +52,7 @@ number_of_signals         | 4    | 252      | 'ns'
    - Name is patient's name
    - (If a subfield is not known, replace with an X)
 
-3. 'recording_id': Startdate dd-MMM-yyyy ExpID InvestigID Equipment
+3. 'recording_id' is a string `'Startdate dd-MMM-yyyy ExpID InvestigID Equipment'`, where
 
    - The text "Startdate"
    - dd-MMM-yyyy, the actual start date
@@ -69,7 +60,7 @@ number_of_signals         | 4    | 252      | 'ns'
    - InvestigID, code of responsible investigator
    - Equipment, code of equipment used
    - Additional optional subfields may follow the ones above
-   - Example: Startdate 02-MAR-2002 PSG-1234=2002 NN Telemetry03
+   - Example: 'Startdate 02-MAR-2002 PSG-1234=2002 NN Telemetry03'
 
 4. 'reserved': empty for EDF; 'EDF+C' for continuous recording; 'EDF+D'
    if the recording is interrupted.
@@ -101,8 +92,8 @@ reserved          | 32   | 224      |
 
 2. 'physical_dim' (physical dimension, e.g. 'uV') must start with a
    prefix (in this example u) followed by the basic dimension (in this
-   example V). For full details see
-   http://www.edfplus.info/specs/edftexts.html.
+   example V). For full details see the [EDF full
+   specifications](http://www.edfplus.info/specs/edftexts.html).
 
 3. The digital range must be somewhere between -32768 and 32767 (because
    data samples are 16-bit signed integers).
@@ -122,7 +113,7 @@ fields (16 + 16 bytes), then two consecutive 'transducer' fields (80 +
 ## Data record
 
 Data records follow after the header record. Here, data samples (of type
-int16) are stored in blocks ('data record'). Each block contains the
+int16) are stored in blocks (the *data record*). Each block contains the
 samples acquired during a period of time specified in the header as
 'duration_of_data_record', and the total number of blocks in the file
 are 'number_of_data_records'. Note that EDF allows the acquisition of
@@ -130,24 +121,29 @@ signals at different sampling rates; the number of samples per signal in
 each data block is in the signal header
 ('number_of_samples_in_data_record').
 
-For example, two signals signal_A and signal_B are acquired at 100 Hz
-and 5 Hz respectively. The data are saved every 20 seconds
-(duration_of_data_record = 20). Thus, one block of data (a data record)
+For example, two signals `signal_A` and `signal_B` are acquired at 100
+Hz and 5 Hz respectively. The data are saved every 20 seconds (i.e.
+`duration_of_data_record = 20`). Thus, one block of data (a data record)
 will consist of 2000 samples (number_of_samples_in_data_record = 100 Hz
-times 20 seconds = 2000) from signal_A followed by 100 samples
+times 20 seconds = 2000) from `signal_A` followed by 100 samples
 (number_of_samples_in_data_record = 5 Hz times 20 seconds = 100) from
-signal_B. If the header indicates that there are 70 such blocks
-(number_of_data_records = 70), then the total duration of the recording
-would be 70 x 20 = 1400 seconds (number_of_data_records times
-duration_of_data_record).
+`signal_B`. If the header indicates that there are 70 such blocks
+(`number_of_data_records = 70`), then the total duration of the
+recording would be 70 x 20 = 1400 seconds (`number_of_data_records`
+x `duration_of_data_record`).
 
 
 ### Converting digital samples to physical dimensions
 
 Data samples are stored as 16-bit (2-byte signed, little endian, two's
 complement) integers. An easy way to convert those values to their
-physical equivalent is by using the line equation with the information
-stored in the `Signal record`.
+physical equivalent is by using the equation for a straight line with
+the signal information stored in the
+[EdfSignal][edfrw.headers.EdfSignal] record.
+
+(**Note** that this conversion is done automatically by the function
+[edfrw.headers.EdfSignal.dig_to_phys][] so typically it is not necessary
+to worry about this. The procedure is documented here for completeness.)
 
 The slope *m* (or gain) of a straight line is the ratio of change in *y*
 by change in *x*:
@@ -166,7 +162,7 @@ y = m * (x + b)
 It can be seen that the raw int16 data values stored in an EDF file
 correspond to *x* in that equation, that the physical values that we are
 looking for are *y*, and that these two are related by the parameters
-set in the `Signal record`.
+set in the [EdfSignal][edfrw.headers.EdfSignal] record.
 
 The slope can be calculated as:
 
