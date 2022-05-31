@@ -260,7 +260,7 @@ class EdfReader(object):
 
         Parameters
         ----------
-        sig_number : integer or string
+        signal : integer or string
             Signal to read. If an integer, it is the signal index
             (starting from 0); if a string it is the name (label) of
             the signal.
